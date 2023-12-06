@@ -2,22 +2,33 @@
 % to avoid deep expansions for larger lists, i use the non-recursive variant
 %
 % well, i noticed too late that we only need permutations of size n and honestly it is getting later and
-% later.... so what do we do? We fingerprint combinations locally with detokenize
-% and check if they already exist!
+% later.... so what do we do? We fingerprint combinations locally and check if they already exist!
 %
 % #1 the name of the list, please define '\chr@@output' to run on the list after each permutation
 % this macro receives no arguments, but can read the same list you gave to permute!
-\def\chr@permute#1{% i fumbled here (historical reasons :D)
+% besides, it can use '\chr@list@coll' to get the collected list elements if necessary!
+% #2 is the length of the permutations desired
+\def\chr@permute#1#2{\begingroup% i fumbled here (historical reasons :D)
    \ifx\chr@@output\chr@undefined
       \chr@error{You have to define \string\chr@@output\space to run on the list after each permutation!}%
    \fi
    \def\chr@permute@length{\csname #1length\endcsname}%
+   \edef\chr@permute@output@length{#2}%
    \expandafter\chr@permute@generate\expandafter{\chr@permute@length}{#1}%
-}
+\endgroup}
 
 % fingerprint the current state of the list with name in #1
-\def\chr@permute@fingerprint#1{%
-
+% #2 is only executed if the fingerprint does not already exist
+\def\chr@permute@fingerprint#1#2{%
+   % TODO: only first n (pattern length) should be part
+   \chr@list@to@string\chr@list@coll{#1}{\chr@permute@output@length}%
+   \expandafter\let\expandafter\chr@permute@fingerprint@cmd\expandafter=\csname chr@permute@\chr@list@coll\endcsname
+   \ifx\chr@permute@fingerprint@cmd\relax
+      \expandafter\let\csname chr@permute@\chr@list@coll\endcsname=\chr@ns
+      #2%
+   \else % we already have this fingerprint
+      \chr@verbose{    Skip for fingerprint is present.}%
+   \fi
 }
 
 \def\chr@permute@init#1{%
@@ -44,7 +55,7 @@
    \else
       % initialize new array - also known as the ""list""
       \chr@permute@init{#1}%
-      \chr@@output%
+      \chr@permute@fingerprint{#2}{\chr@@output}%
       % tempcount will be our i
       \chr@tempcount=1\relax
       \let\chr@permute@done\chr@empty
@@ -57,7 +68,7 @@
                \else
                   \chr@list@swap{#2}{0}{\the\chr@tempcount}% swap(A[0], A[i])
                \fi
-               \chr@@output
+               \chr@permute@fingerprint{#2}{\chr@@output}
                % without numexpr this is like... really painful
                \chr@tempcountb=\chr@c@i\relax
                \chr@step\chr@tempcountb

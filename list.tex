@@ -40,7 +40,6 @@
    \chr@list@iter\elem:=#2\do{%
       \expandafter\chr@gapp\expandafter#1\expandafter{\elem,}%
       \chr@step\chr@tempcount
-      \chr@log{\the\chr@tempcount, #3}%
       \ifnum\the\chr@tempcount<#3\else
          \chr@break
       \fi
