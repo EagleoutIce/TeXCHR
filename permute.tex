@@ -1,11 +1,18 @@
-% we use heap's algorithm to generate all permutations of a list
+% we use heap's algorithm to generate all permutations of a list - i love that algorithm honestly
 % to avoid deep expansions for larger lists, i use the non-recursive variant
-% #1 the name of the list
-\def\chr@permute#1{%
-   \let\chr@@output\chr@list@log
-   \edef\chr@tmp{\csname #1length\endcsname}%
-   \expandafter\chr@permute@generate\expandafter{\chr@tmp}{#1}%
-   % TODO: skip empty on retrieval
+%
+% well, i noticed too late that we only need permutations of size n and honestly i am too lazy to change that now
+% so what we will do is simply just check the first n elements of the list during processing
+% yes, this way we check permutations twice, but this, now, is a FIXME
+%
+% #1 the name of the list, please define '\chr@@output' to run on the list after each permutation
+% this macro receives no arguments, but can read the same list you gave to permute!
+\def\chr@permute#1{% i fumbled here (historical reasons :D)
+   \ifx\chr@@output\chr@undefined
+      \chr@error{You have to define \string\chr@@output\space to run on the list after each permutation!}%
+   \fi
+   \def\chr@permute@length{\csname #1length\endcsname}%
+   \expandafter\chr@permute@generate\expandafter{\chr@permute@length}{#1}%
 }
 
 \def\chr@permute@init#1{%
@@ -32,7 +39,7 @@
    \else
       % initialize new array - also known as the ""list""
       \chr@permute@init{#1}%
-      \chr@@output{#2}%
+      \chr@@output%
       % tempcount will be our i
       \chr@tempcount=1\relax
       \let\chr@permute@done\chr@empty
@@ -45,7 +52,7 @@
                \else
                   \chr@list@swap{#2}{0}{\the\chr@tempcount}% swap(A[0], A[i])
                \fi
-               \chr@@output{#2}%
+               \chr@@output
                % without numexpr this is like... really painful
                \chr@tempcountb=\chr@c@i\relax
                \chr@step\chr@tempcountb

@@ -16,6 +16,8 @@
 
 \def\chr@step#1{\advance#1 by\@ne}
 
+\def\chr@error#1{\errmessage{Error: #1}}
+
 \let\chr@true=\iftrue
 \let\chr@false=\iffalse
 
@@ -31,5 +33,8 @@
 \def\chr@app#1#2{%
    \begingroup\toks@\expandafter{#1#2}\xdef\@tmp{\the\toks@}\endgroup
    \let#1=\@tmp
+}
+\def\chr@gapp#1#2{%
+   \begingroup\toks@\expandafter{#1#2}\xdef#1{\the\toks@}\endgroup
 }
 \def\chr@strip@meaning#1>{}

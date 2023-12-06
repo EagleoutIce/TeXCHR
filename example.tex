@@ -4,7 +4,7 @@
 \def\fail{\errmessage{FAIL}}
 \def\yes{\chr@log{YES}}
 
-\chr{ListTest}{
+\chr{List Test}{
    \makelist{example}{1,2,3,4}
    \listequal{example}{example} \yes \else \fail \fi
    \makelist{example2}{1,2,3,4}
@@ -15,9 +15,20 @@
    \listequal{example}{example4} \fail \else \yes  \fi
 }
 
-\chr{PermuteTest}{
+\chr{Permute Test}{
    \makelist{example}{1,2,3}
+   \def\chr@@output{\chr@list@log{example}}
    \permute{example}
 }
 
+% % i like patterns more than pattern tbh.
+% for a pattern, '\c' is always the constraint passed!
+\chr{Match Test}{
+   \makelist{constraints}{1,2,3}
+   \makelist{patterns}{
+      {\ifnum\c>2},
+      {\ifnum\c>0}%
+   }
+   \match{patterns}{constraints}
+}
 \bye
