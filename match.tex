@@ -1,44 +1,48 @@
 % how to do mat(s)chings!
 % #1 is the name of the list of patterns, #2 the name of the list of constraints
+%
 \def\chr@match#1#2{%
    % length of patterns
    \edef\chr@patterns@length{\csname #1length\endcsname}%
    \edef\chr@match@result{}%
-   \def\chr@@output{\bgroup
-      % for list name '#2', try each pattern in list '#1' respectively and return true if all do, return false otherwise
-      \chr@tempcountc=\z@
-      \let\chr@match@stop=\chr@ns
-      \gdef\chr@match@output{}%
-      \loop
-         \ifnum\the\chr@tempcountc<\chr@patterns@length\relax
-            % DO THE WORK
-            % now check, if the predicate matches, first we store the current constraint in \c
-            \chr@list@let\c=#2[\the\chr@tempcountc]%
-            % TODO: only works, if constraint can be printed!
-            \chr@verbose{Checking pattern \the\chr@tempcountc\space for constraint value: '\c'.}%
-            \let\chr@pattern@result=\chr@empty
-            % we add the index of the respective constraint
-            \expandafter\chr@app\expandafter\chr@match@output\expandafter{\expandafter{\the\chr@tempcountc},}%
-            %
-            % now we can check the predicate
-            \chr@exec{#1}%
-            \chr@step\chr@tempcountc
-         \else
-            \let\chr@match@stop=\chr@empty
-         \fi
-         %
-         \ifx\chr@match@stop\chr@ns
-      \repeat
-      % if it is successful, store it!
-      \ifx\chr@pattern@result\chr@ns
-         \chr@verbose{Adding successful: \chr@match@output}%
-         \chr@list@to@string\chr@list@out{#2}% the permutation tuple:
-         \expandafter\expandafter\expandafter\chr@gapp\expandafter\expandafter\expandafter\chr@match@result\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter{\expandafter\chr@match@output\expandafter}\expandafter{\chr@list@out},}%
-         \chr@verbose{Result: \chr@match@result}%
-      \fi
-   \egroup}%
+   \def\chr@match@patternnames{#1}%
+   \def\chr@match@constraintnames{#2}%
+   \let\chr@@output\chr@match@output
    \chr@permute{#2}%
    \chr@log{XX: \chr@match@result}%
+}
+
+\def\chr@match@output{\bgroup
+   % for list name '#2', try each pattern in list '#1' respectively and return true if all do, return false otherwise
+   \chr@tempcountc=\z@
+   \let\chr@match@stop=\chr@ns
+   \gdef\chr@match@output{}%
+   \loop
+      \ifnum\the\chr@tempcountc<\chr@patterns@length\relax
+         % DO THE WORK
+         % now check, if the predicate matches, first we store the current constraint in \c
+         \chr@list@let\c=\chr@match@constraintnames[\the\chr@tempcountc]%
+         % TODO: only works, if constraint can be printed!
+         \chr@verbose{Checking pattern \the\chr@tempcountc\space for constraint value: '\c'.}%
+         \let\chr@pattern@result=\chr@empty
+         %
+         % now we can check the predicate
+         \chr@exec{\chr@match@patternnames}%
+         \chr@step\chr@tempcountc
+      \else
+         \let\chr@match@stop=\chr@empty
+      \fi
+      %
+      \ifx\chr@match@stop\chr@ns
+   \repeat
+   % if it is successful, store it!
+   \ifx\chr@pattern@result\chr@ns
+      \chr@verbose{Adding successful: \chr@match@output}%
+      \chr@list@to@string\chr@list@out{\chr@match@constraintnames}% the permutation:
+      \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter{\chr@list@out},}%
+      \chr@verbose{Result: \chr@match@result}%
+   \fi
+\egroup
 }
 
 
