@@ -2,13 +2,16 @@
 % note: your name (#1) must be a valid command sequence to work!
 \def\chr@list#1#2{%
    \chr@tempcount=\z@
-   \chr@for\chr@elem:={#2}\do{%
-      % you gotta love tex :3 we have to expand \chr@elem once to persist the content
-      \expandafter\expandafter\expandafter\def
-         \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
-         \expandafter\endcsname\expandafter{\chr@elem}%
-      \chr@step\chr@tempcount
-   }%
+   \def\chr@listcheck{#2}%
+   \ifx\chr@listcheck\chr@empty\else
+      \chr@for\chr@elem:={#2}\do{%
+            % you gotta love tex :3 we have to expand \chr@elem once to persist the content
+            \expandafter\expandafter\expandafter\def
+               \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
+               \expandafter\endcsname\expandafter{\chr@elem}%
+            \chr@step\chr@tempcount
+      }%
+   \fi
    \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
    \chr@verbose{Created list #1 with \the\chr@tempcount\space element(s).}%
@@ -35,15 +38,21 @@
 
 % collects the first #3 elements of the list with name #2 in #1
 \def\chr@list@to@string#1#2#3{\begingroup
-   \gdef#1{}%
+   \global\let#1=\chr@empty
    \chr@tempcount=\z@
-   \chr@list@iter\elem:=#2\do{%
-      \expandafter\chr@gapp\expandafter#1\expandafter{\elem,}%
-      \chr@step\chr@tempcount
-      \ifnum\the\chr@tempcount<#3\else
-         \chr@break
-      \fi
-   }%
+   \ifnum\csname#2length\endcsname=\z@\relax \else
+      \chr@list@iter\chr@elem:=#2\do{%
+         \ifnum\chr@tempcount=\z@\relax
+            \expandafter\chr@gapp\expandafter#1\expandafter{\chr@elem}%
+         \else
+            \expandafter\chr@gapp\expandafter#1\expandafter{\expandafter,\chr@elem}%
+         \fi
+         \chr@step\chr@tempcount
+         \ifnum\the\chr@tempcount<#3\else
+            \chr@break
+         \fi
+      }%
+   \fi
    \chr@verbose{List #2 to string: '#1'}%
 \endgroup}
 
@@ -72,6 +81,22 @@
 }
 \def\chr@list@eget#1=#2[#3]{%
    \expandafter\edef\expandafter#1\expandafter{\expandafter\expandafter\expandafter\chr@strip@meaning\expandafter\meaning\csname#2@\the\chr@tempcount\endcsname}
+}
+
+% TODO: optimize?
+\def\chr@list@concat#1#2#3{%
+   \chr@list{#1}{}%
+   \ifnum\csname#2length\endcsname=\z@\relax \else
+      \chr@list@iter\chr@elem:=#2\do{%
+         \chr@list@append{#1}{\chr@elem}%
+      }%
+   \fi
+   \ifnum\csname#3length\endcsname=\z@\relax \else
+      \chr@list@iter\chr@elem:=#3\do{%
+         \chr@list@append{#1}{\chr@elem}%
+      }%
+   \fi
+   \chr@verbose{Concatenated lists #2 and #3 into #1 (length: \csname#1length\endcsname).}%
 }
 
 % names of both lists, expands to \chr@true if equal, \chr@false otherwise
@@ -113,8 +138,8 @@
 \def\chr@list@append#1#2{%
    \chr@tempcount=\csname#1length\endcsname
    \chr@step\chr@tempcount
-   \expandafter\def\csname#1@\the\chr@tempcount\endcsname{#2}%
-   \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+   \expandafter\gdef\csname#1@\the\chr@tempcount\endcsname{#2}%
+   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcount}%
 }
 % #1 name of list, #2 index to delete
 \def\chr@list@delete#1#2{%

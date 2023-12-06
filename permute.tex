@@ -12,6 +12,7 @@
    \ifx\chr@@output\chr@undefined
       \chr@error{You have to define \string\chr@@output\space to run on the list after each permutation!}%
    \fi
+   \let\chr@list@coll=\@empty
    \def\chr@permute@length{\csname #1length\endcsname}%
    \edef\chr@permute@output@length{#2}%
    \expandafter\chr@permute@generate\expandafter{\chr@permute@length}{#1}%

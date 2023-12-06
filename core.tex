@@ -14,6 +14,10 @@
 \newdimen\p@ \p@=1pt
 \newcount\@ne \@ne=1
 
+\def\chr@firstoftwo#1#2{#1}
+\def\chr@secondoftwo#1#2{#2}
+\def\chr@empty{}
+
 \def\chr@step#1{\advance#1 by\@ne}
 
 \def\chr@error#1{\errmessage{Error: #1}}

@@ -1,6 +1,6 @@
 % how to do mat(s)chings!
 % #1 is the name of the list of patterns, #2 the name of the list of constraints
-%
+% returns all matching patterns in \chr@match@result
 \def\chr@match#1#2{%
    % length of patterns
    \edef\chr@patterns@length{\csname #1length\endcsname}%
@@ -10,7 +10,6 @@
    \def\chr@match@constraintnames{#2}%
    \let\chr@@output\chr@match@output
    \chr@permute{#2}{\chr@patterns@length}%
-   \chr@log{XX: \chr@match@result}%
 }
 
 \def\chr@match@output{\bgroup
@@ -28,7 +27,7 @@
          \let\chr@pattern@result=\chr@empty
          %
          % now we can check the predicate
-         \chr@exec{\chr@match@patternnames}%
+         \chr@exec@pattern%
          \chr@step\chr@tempcountc
       \else
          \let\chr@match@stop=\chr@empty
@@ -44,8 +43,8 @@
 }
 
 
-\def\chr@exec#1{% we have to hide the \else from early execute
-   \csname #1@\the\chr@tempcountc\endcsname
+\def\chr@exec@pattern{% we have to hide the \else from early execute
+   \csname \chr@match@patternnames @\the\chr@tempcountc\endcsname
       \let\chr@pattern@result=\chr@ns
       \chr@verbose{Pattern \the\chr@tempcountc\space matches.}%
       \relax % relax, we are good!

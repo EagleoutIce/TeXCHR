@@ -1,7 +1,57 @@
 % #1: kept_head
 % #2: removed_head
-% #3 guard
+% #3: guard
 % #4: body
+% returns a solver (stored in \chr@toreturn)
 \def\chr@rule#1#2#3#4{%
+   % takes the name of the constraint list to work on
+   \chr@program@set{chr@toreturn}##1{%
+      % first, let's match
+      \chr@list@concat{chr@all}{#1}{#2}% we want k + r
+      \chr@match{chr@all}{##1}%
+      \chr@log{Matched: \chr@match@result}%
+      % iterate and check if the guards like them.
+      % we pass in the list getter to the guard as \cs, so it can use \cs1, \cs2, ...
+      \let\chr@constraints@to@fire=\chr@empty
+      \chr@list@iter\chr@try:=\chr@match@result\do{%
+         \expandafter\chr@list\expandafter{\expandafter c\expandafter s\expandafter}\expandafter{\chr@try}%
+         \chr@exec@guard{#3}%
+             {\let\chr@constraints@to@fire=\chr@try\relax \chr@break}%
+             \relax % just continue in the other case
+      }%
+      \ifx\chr@constraints@to@fire\chr@empty
+         \chr@verbose{No guard matched.}%
+         \chr@toreturn{}%
+      \else % here, we have a matched head and guard, and we can actually apply the rule!
+         % we have the length of the kept head in #1, now we shorten the list to only contain it!
+         \chr@log{Firing rule with constraints: \chr@constraints@to@fire}%
+         % we copy this way, ugly? yes. nice? i dunno
+         \chr@list@to@string\chr@constraints@remains{\chr@constraints@to@fire}{\csname#1length\endcsname}%
+         \chr@list{chr@c@rem}{\chr@constraints@remains}%
+         % the body should return a new list named... result! which we now simply concat, it can still access c for a new list
+         #4
+         \chr@list@log{result}%
+         \chr@list@concat{chr@constraints}{chr@c@rem}{result}%
+      \fi
+   }
+}
 
+% variant of \chr@rule, which allows for a name as #1 (which must be unique)
+% and uses it to construct lists in-place
+\def\chr@rule@inline#1#2#3#4#5{%
+   \chr@list{#1@kept}{#2}%
+   \chr@list{#1@rem}{#3}%
+   \chr@rule{#1@kept}{#1@rem}{#4}{#5}%
+}
+
+% #2 if matches, #3 otherwise
+\def\chr@exec@guard#1{% we have to hide the \else from early execute
+   #1
+      \let\chr@guard@result=\chr@ns
+      \chr@verbose{Guard matches.}%
+      \expandafter\chr@firstoftwo
+   \else
+      \chr@verbose{Guard does not match.}%
+      \expandafter\chr@secondoftwo
+   \fi
 }
