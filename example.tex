@@ -4,37 +4,37 @@
 \def\fail{\errmessage{FAIL}}
 \def\yes{\chr@log{YES}}
 
-\chr{List Test}{
-   \makelist{example}{1,2,3,4}
-   \listequal{example}{example} \yes \else \fail \fi
-   \makelist{example2}{1,2,3,4}
-   \listequal{example}{example2} \yes \else \fail \fi
-   \makelist{example3}{1,2,3,4,5}
-   \listequal{example}{example3} \fail \else \yes \fi
-   \makelist{example4}{1,2,4,3}
-   \listequal{example}{example4} \fail \else \yes  \fi
-}
-
-\chr{Permute Test}{
-   \makelist{example}{1,2,3}
-   \def\chr@@output{\chr@list@log{example}}
-   \permute{example}{2}
-}
-
-% % i like patterns more than pattern tbh.
-% for a pattern, '\c' is always the constraint passed!
-\chr{Match Test}{%
-   \makelist{constraints}{1,2,3,4}%
-   \makelist{patterns}{%
-      {\ifnum\c>2},
-      {\ifnum\c>0}%
-   }
-   \match{patterns}{constraints}
-}
-
-% \chr{Rule Test}{%
-%    \makelist{constraints}{1,2,3,4}%
-%    \Rule{base-case}{}{{\ifnum\c1>0}}{\chr@true}{}
-%    \chr@program@get{chr@toreturn}{constraints}
+% \chr{List Test}{
+%    \makelist{example}{1,2,3,4}
+%    \listequal{example}{example} \yes \else \fail \fi
+%    \makelist{example2}{1,2,3,4}
+%    \listequal{example}{example2} \yes \else \fail \fi
+%    \makelist{example3}{1,2,3,4,5}
+%    \listequal{example}{example3} \fail \else \yes \fi
+%    \makelist{example4}{1,2,4,3}
+%    \listequal{example}{example4} \fail \else \yes  \fi
 % }
+
+% \chr{Permute Test}{
+%    \makelist{example}{1,2,3}
+%    \def\chr@@output{\chr@list@log{example}}
+%    \permute{example}{2}
+% }
+
+% % % i like patterns more than pattern tbh.
+% % for a pattern, '\c' is always the constraint passed!
+% \chr{Match Test}{%
+%    \makelist{constraints}{1,2,3,4}%
+%    \makelist{patterns}{%
+%       {\ifnum\c>2},
+%       {\ifnum\c>0}%
+%    }
+%    \match{patterns}{constraints}
+% }
+
+\chr{Rule Test}{%
+   \makelist{constraints}{1,2,3,4}%
+   \Rule{base-case}{}{x}{\chr@true}{}% {\ifnum\c1>0}
+   \chr@program@get{chr@toreturn}{constraints}
+}
 \bye

@@ -1,18 +1,20 @@
 % how to do mat(s)chings!
 % #1 is the name of the list of patterns, #2 the name of the list of constraints
 % returns all matching patterns in \chr@match@result
-\def\chr@match#1#2{%
+\def\chr@match#1#2{\begingroup%
    % length of patterns
    \edef\chr@patterns@length{\csname #1length\endcsname}%
    \edef\chr@constraints@length{\csname #2length\endcsname}%
-   \edef\chr@match@result{}%
+   \gdef\chr@match@result{}%
    \def\chr@match@patternnames{#1}%
    \def\chr@match@constraintnames{#2}%
    \let\chr@@output\chr@match@output
    \chr@permute{#2}{\chr@patterns@length}%
+   \global\let\chr@match@result=\chr@match@result\relax
+   \endgroup
 }
 
-\def\chr@match@output{\bgroup
+\def\chr@match@output{\begingroup
    % for list name '#2', try each pattern in list '#1' respectively and return true if all do, return false otherwise
    \chr@tempcountc=\z@
    \let\chr@match@stop=\chr@ns
@@ -27,7 +29,7 @@
          \let\chr@pattern@result=\chr@empty
          %
          % now we can check the predicate
-         \chr@exec@pattern%
+         \chr@exec@pattern
          \chr@step\chr@tempcountc
       \else
          \let\chr@match@stop=\chr@empty
@@ -39,12 +41,12 @@
    \ifx\chr@pattern@result\chr@ns
       \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter{\chr@list@coll},}%
    \fi
-\egroup
+\endgroup
 }
 
 
 \def\chr@exec@pattern{% we have to hide the \else from early execute
-   \csname \chr@match@patternnames @\the\chr@tempcountc\endcsname
+   \csname\chr@match@patternnames @\the\chr@tempcountc\endcsname
       \let\chr@pattern@result=\chr@ns
       \chr@verbose{Pattern \the\chr@tempcountc\space matches.}%
       \relax % relax, we are good!

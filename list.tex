@@ -30,9 +30,13 @@
 
 \def\chr@list@log#1{\begingroup
    \chr@log{Dumping List #1}%
-   \chr@list@iter\elem:=#1\do{%
-      \chr@log{\elem}%
-   }%
+   \ifnum\csname#1length\endcsname=\z@\relax
+      \chr@log{Empty List}%
+   \else
+      \chr@list@iter\elem:=#1\do{%
+         \chr@log{\elem}%
+      }%
+   \fi
    \chr@log{End of List #1}%
 \endgroup}
 
@@ -86,14 +90,15 @@
 % TODO: optimize?
 \def\chr@list@concat#1#2#3{%
    \chr@list{#1}{}%
+   \def\chr@tmp@listname{#1}%
    \ifnum\csname#2length\endcsname=\z@\relax \else
       \chr@list@iter\chr@elem:=#2\do{%
-         \chr@list@append{#1}{\chr@elem}%
+         \expandafter\chr@list@append\expandafter{\expandafter\chr@tmp@listname\expandafter}\expandafter{\chr@elem}%
       }%
    \fi
    \ifnum\csname#3length\endcsname=\z@\relax \else
       \chr@list@iter\chr@elem:=#3\do{%
-         \chr@list@append{#1}{\chr@elem}%
+         \expandafter\chr@list@append\expandafter{\expandafter\chr@tmp@listname\expandafter}\expandafter{\chr@elem}%
       }%
    \fi
    \chr@verbose{Concatenated lists #2 and #3 into #1 (length: \csname#1length\endcsname).}%
@@ -137,9 +142,9 @@
 % #1 name of list, #2 element to append
 \def\chr@list@append#1#2{%
    \chr@tempcount=\csname#1length\endcsname
-   \chr@step\chr@tempcount
    \expandafter\gdef\csname#1@\the\chr@tempcount\endcsname{#2}%
    \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcount}%
+   \chr@step\chr@tempcount
 }
 % #1 name of list, #2 index to delete
 \def\chr@list@delete#1#2{%

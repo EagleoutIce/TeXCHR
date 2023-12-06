@@ -8,6 +8,7 @@
    \chr@program@set{chr@toreturn}##1{%
       % first, let's match
       \chr@list@concat{chr@all}{#1}{#2}% we want k + r
+      \chr@list@log{chr@all}%
       \chr@match{chr@all}{##1}%
       \chr@log{Matched: \chr@match@result}%
       % iterate and check if the guards like them.
