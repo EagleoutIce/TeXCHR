@@ -12,7 +12,7 @@
 }
 
 % program-scoped setter and getter
-\def\chr@program@set#1#2{\expandafter\def\csname chr@\chr@current @#1\endcsname{#2}}
+\def\chr@program@set#1{\expandafter\def\csname chr@\chr@current @#1\endcsname}
 \def\chr@program@get#1{\csname chr@\chr@current @#1\endcsname}
 
 \def\chr@program@solvers#1{%

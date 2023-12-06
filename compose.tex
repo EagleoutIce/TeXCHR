@@ -1,13 +1,22 @@
 % list name of solvers list
 \def\chr@compose#1{%
-   \def\constraintsname{#1}%
-   \chr@program@set{composite_solver}{%
-      \def\chr@toreturn{\constraintsname}%
+   \edef\solvernames{#1}%
+   \chr@program@set{composite_solver}##1{%
+      \def\chr@toreturn{##1}%
       % iterate over every solver
-      \chr@list@iter\chr@s:=\constraintsname\do{%
+      \chr@list@iter\chr@s:=\solvernames\do{%
          % contract: every solver must store its result in \chr@toreturn
-         \chr@s{#1}
-      }
+         \chr@s{##1}
+         % compare if the constraints have changed => did this solver make us happy?
+         \chr@list@equal{##1}{\chr@toreturn}%
+            % if so, break, this solver is nice!
+            \chr@break
+         \fi
+      }%
+      % TODO: maybe just keep toreturn in local register?
+      \chr@toreturn
    }
-   \chr@program@get{composite_solver}%
+   % technically it is up to the caller to do that :eyes:
+   % on call, we simply assume, that '\constraintsname' is set
+   % \chr@program@get{composite_solver}%
 }

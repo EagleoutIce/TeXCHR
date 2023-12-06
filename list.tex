@@ -14,6 +14,9 @@
    \chr@verbose{Created list #1 with \the\chr@tempcount\space element(s).}%
 }
 
+% FIXME: we should just use the current listname but is it worth the register and scoping?
+\def\chr@break{\chr@tempcount=100000}
+
 % similar to \chr@for but does the expansion for the list under the hood :3
 \def\chr@list@iter#1:=#2\do#3{%
    \chr@tempcount=\z@
