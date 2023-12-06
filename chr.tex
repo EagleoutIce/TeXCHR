@@ -1,18 +1,11 @@
-\input core.tex % global registers and setup
-\input log.tex  % yes, i have to debug!
-\input for.tex  % tex-for loops for sane people
-\input list.tex % for constraint/rule lists!
+\input core.tex    % global registers and setup
+\input log.tex     % yes, i have to debug!
+\input for.tex     % tex-for loops for sane people
+\input list.tex    % for constraint/rule lists!
+\input match.tex   % to match heads against constraints
+\input compose.tex % for composing rules
+\input rule.tex    % for defining rules
 
-
-
-
-
-% #1: kept_head
-% #2: removed_head
-% #3 guard
-% #4: body
-\def\chr@rule#1#2#3#4{%
-
-}
+\input program.tex % tooling to define a program!
 
 \chr@log{Welcome to TeXCHR \chr@version!}

@@ -1,0 +1,11 @@
+% list name of solvers list
+\def\chr@compose#1{%
+   \chr@program@set{composite_solver}{%
+      \def\chr@toreturn{#1}%
+
+      \chr@for\chr@s:=\@tmp{%
+         \chr@log{\chr@s}%
+      }
+   }
+   \chr@program@get{composite_solver}%
+}

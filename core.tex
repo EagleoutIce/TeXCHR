@@ -15,7 +15,15 @@
 
 \def\chr@step#1{\advance#1 by\@ne}
 
+\let\chr@true=\iftrue
+\let\chr@false=\iffalse
+
 \newcount\chr@unused
 \newcount\chr@rulecount       \chr@rulecount=\z@
 \newcount\chr@constraintcount \chr@constraintcount=\z@
 \newcount\chr@tempcount
+
+\def\chr@app#1#2{%
+   \begingroup\toks@\expandafter{#1#2}\xdef\@tmp{\the\toks@}\endgroup
+   \let#1=\@tmp
+}

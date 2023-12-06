@@ -1,0 +1,22 @@
+% to start every program, allows to define a rule composition with a name (#1) and rule-definitions (#2)
+% afterwards you get \#1 to run the program with a constraint list name
+% note: your name (#1) must be a valid command sequence to work!
+\long\def\chr@program#1#2{\begingroup
+   \edef\chr@current{#1}%
+   \let\makelist=\chr@list
+   \let\compose=\chr@compose
+   \let\defsolvers=\chr@program@solvers
+   \ignorespaces#2\relax
+   \endgroup
+}
+
+% program-scoped setter and getter
+\def\chr@program@set#1#2{\expandafter\def\csname chr@\chr@current @#1\endcsname{#2}}
+\def\chr@program@get#1{\csname chr@\chr@current @#1\endcsname}
+
+\def\chr@program@solvers#1{%
+   \chr@list{\chr@current @solvers}{#1}%
+   \def\solvers{\csname\chr@current @solvers\endcsname}%
+}
+
+\let\chr\chr@program

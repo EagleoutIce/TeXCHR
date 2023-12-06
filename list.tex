@@ -1,5 +1,7 @@
 % #1 macro name (allows quicker access), #2 comma-separated elements
+% note: your name (#1) must be a valid command sequence to work!
 \def\chr@list#1#2{%
+   \chr@verbose{Create new list #1.}%
    \chr@tempcount=\z@
    \chr@for\chr@elem:={#2}\do{%
       % you gotta love tex :3 we have to expand \chr@elem once to persist the content
@@ -10,6 +12,13 @@
    }%
    \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+   \expandafter\def\csname#1iter\endcsname{#2}%
+   \chr@verbose{List #1 has \the\chr@tempcount\space element(s).}%
+}
+
+% similar to \chr@for but does the expansion for the list under the hood :3
+\def\chr@list@iter#1:=#2\do#3{%
+
 }
 
 % #1 name of list, #2 element to append
@@ -18,6 +27,11 @@
    \chr@step\chr@tempcount
    \expandafter\def\csname#1@\the\chr@tempcount\endcsname{#2}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+   \ifnum\chr@tempcount<1\relax
+      \expandafter\def\csname#1iter\endcsname{{#2}}%
+   \else
+      \expandafter\chr@app\csname#1iter\endcsname{,{#2}}%
+   \fi
 }
 % #1 name of list, #2 index to delete
 \def\chr@list@delete#1#2{%
@@ -25,9 +39,9 @@
    % otherwise replace with \main{next-idx}
 }
 
-\chr@list{main}{4,2,3}
-\chr@log{\main{1}}
-\chr@log{\mainlength}
-\chr@list@append{main}{5}
-\chr@log{\main{4}}
-\chr@log{\mainlength}
+% \chr@list{main}{4,2,3}
+% \chr@log{\main{1}}
+% \chr@log{\mainlength}
+% \chr@list@append{main}{5}
+% \chr@log{\main{4}}
+% \chr@log{\mainlength}

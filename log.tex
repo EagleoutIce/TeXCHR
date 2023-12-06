@@ -1,5 +1,6 @@
 \def\chr@log#1{%
 \begingroup
    \let\par\space
-   \immediate\write\chr@unused{#1}
+   \immediate\write\chr@unused{> #1}
 \endgroup}
+\let\chr@verbose=\chr@log
