@@ -1,7 +1,7 @@
 % how to do mat(s)chings!
 % #1 is the name of the list of patterns, #2 the name of the list of constraints
 % returns all matching patterns in \chr@match@result
-\def\chr@match#1#2{\begingroup%
+\def\chr@match#1#2{%
    % length of patterns
    \edef\chr@patterns@length{\csname #1length\endcsname}%
    \edef\chr@constraints@length{\csname #2length\endcsname}%
@@ -10,8 +10,7 @@
    \def\chr@match@constraintnames{#2}%
    \let\chr@@output\chr@match@output
    \chr@permute{#2}{\chr@patterns@length}%
-   \global\let\chr@match@result=\chr@match@result\relax
-   \endgroup
+   \chr@verbose{Match found: '\chr@match@result'}%
 }
 
 \def\chr@match@output{\begingroup
