@@ -1,7 +1,6 @@
 % #1 macro name (allows quicker access), #2 comma-separated elements
 % note: your name (#1) must be a valid command sequence to work!
 \def\chr@list#1#2{%
-   \chr@verbose{Create new list #1.}%
    \chr@tempcount=\z@
    \chr@for\chr@elem:={#2}\do{%
       % you gotta love tex :3 we have to expand \chr@elem once to persist the content
@@ -12,14 +11,63 @@
    }%
    \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
-   \expandafter\def\csname#1iter\endcsname{#2}%
-   \chr@verbose{List #1 has \the\chr@tempcount\space element(s).}%
+   \chr@verbose{Created list #1 with \the\chr@tempcount\space element(s).}%
 }
 
 % similar to \chr@for but does the expansion for the list under the hood :3
 \def\chr@list@iter#1:=#2\do#3{%
-
+   \chr@tempcount=\z@
+   \loop
+      \def#1{\csname#2@\the\chr@tempcount\endcsname}%
+      #3%
+      \chr@step\chr@tempcount
+      % automatic break insertion
+      \ifnum\chr@tempcount<\csname#2length\endcsname
+   \repeat
 }
+
+% get the #3th element of list #2 and store it into #1
+\def\chr@list@let#1=#2[#3]{%
+   \expandafter\let\expandafter#1\expandafter=\csname#2@\the\chr@tempcount\endcsname
+}
+\def\chr@list@eget#1=#2[#3]{%
+   \expandafter\edef\expandafter#1\expandafter{\expandafter\expandafter\expandafter\chr@strip@meaning\expandafter\meaning\csname#2@\the\chr@tempcount\endcsname}
+}
+
+% names of both lists, expands to \chr@true if equal, \chr@false otherwise
+% compares on the values as stored in the list
+\def\chr@list@equal#1#2{\begingroup
+   \chr@verbose{Check if lists #1 and #2 are equal.}%
+   \chr@tempcount=\csname#1length\endcsname\relax
+   \chr@tempcountb=\csname#2length\endcsname\relax
+   \ifnum\chr@tempcount=\chr@tempcountb
+      \global\chr@result@true
+      \chr@tempcount=\z@
+      % allow loop
+      \chr@tempif@true
+      \loop
+         \chr@list@eget\@chr@left=#1[\the\chr@tempcount]%
+         \chr@list@eget\@chr@right=#2[\the\chr@tempcount]%
+         % compar
+         \ifx\@chr@left\@chr@right
+            \chr@verbose{Lists are equal at index \the\chr@tempcount.}%
+         \else
+            \chr@verbose{Lists are not equal at index \the\chr@tempcount\space (\@chr@left\space vs. \@chr@right).}%
+            \global\chr@result@false
+            \chr@tempif@false
+         \fi
+         % automatic break insertion
+         \chr@step\chr@tempcount
+         \ifnum\chr@tempcount<\csname#1length\endcsname \else \chr@tempif@false \fi
+         \ifchr@tempif@
+      \repeat
+      \chr@verbose{Lists are \ifchr@result@\else not\space\fi equal.}%
+   \else
+      \chr@verbose{Different lengths (\the\chr@tempcount\space vs. \the\chr@tempcountb).}%
+      \global\chr@result@false
+   \fi
+   \aftergroup\ifchr@result@
+\endgroup}
 
 % #1 name of list, #2 element to append
 \def\chr@list@append#1#2{%
@@ -27,11 +75,6 @@
    \chr@step\chr@tempcount
    \expandafter\def\csname#1@\the\chr@tempcount\endcsname{#2}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
-   \ifnum\chr@tempcount<1\relax
-      \expandafter\def\csname#1iter\endcsname{{#2}}%
-   \else
-      \expandafter\chr@app\csname#1iter\endcsname{,{#2}}%
-   \fi
 }
 % #1 name of list, #2 index to delete
 \def\chr@list@delete#1#2{%

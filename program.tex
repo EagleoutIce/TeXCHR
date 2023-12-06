@@ -4,6 +4,7 @@
 \long\def\chr@program#1#2{\begingroup
    \edef\chr@current{#1}%
    \let\makelist=\chr@list
+   \let\listequal=\chr@list@equal
    \let\compose=\chr@compose
    \let\defsolvers=\chr@program@solvers
    \ignorespaces#2\relax

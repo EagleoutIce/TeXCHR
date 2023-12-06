@@ -1,10 +1,12 @@
 % list name of solvers list
 \def\chr@compose#1{%
+   \def\constraintsname{#1}%
    \chr@program@set{composite_solver}{%
-      \def\chr@toreturn{#1}%
-
-      \chr@for\chr@s:=\@tmp{%
-         \chr@log{\chr@s}%
+      \def\chr@toreturn{\constraintsname}%
+      % iterate over every solver
+      \chr@list@iter\chr@s:=\constraintsname\do{%
+         % contract: every solver must store its result in \chr@toreturn
+         \chr@s{#1}
       }
    }
    \chr@program@get{composite_solver}%

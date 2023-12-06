@@ -22,8 +22,12 @@
 \newcount\chr@rulecount       \chr@rulecount=\z@
 \newcount\chr@constraintcount \chr@constraintcount=\z@
 \newcount\chr@tempcount
+\newcount\chr@tempcountb
+\newif\ifchr@tempif@
+\newif\ifchr@result@
 
 \def\chr@app#1#2{%
    \begingroup\toks@\expandafter{#1#2}\xdef\@tmp{\the\toks@}\endgroup
    \let#1=\@tmp
 }
+\def\chr@strip@meaning#1>{}

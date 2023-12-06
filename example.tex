@@ -1,7 +1,16 @@
+\errorcontextlines99
 \input chr.tex
 
+\def\fail{\errmessage{FAIL}}
+\def\yes{\chr@log{YES}}
 
-\chr{Example}{
+\chr{ListTest}{
    \makelist{example}{1,2,3,4}
-   \compose{example}
+   \listequal{example}{example} \yes \else \fail \fi
+   \makelist{example2}{1,2,3,4}
+   \listequal{example}{example2} \yes \else \fail \fi
+   \makelist{example3}{1,2,3,4,5}
+   \listequal{example}{example3} \fail \else \yes \fi
+   \makelist{example4}{1,2,4,3}
+   \listequal{example}{example4} \fail \else \yes  \fi
 }
