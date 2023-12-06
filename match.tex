@@ -38,7 +38,7 @@
    % if it is successful, store it!
    \ifx\chr@pattern@result\chr@ns
       \chr@verbose{Adding successful: \chr@match@output}%
-      \chr@list@to@string\chr@list@out{\chr@match@constraintnames}% the permutation:
+      \chr@list@to@string\chr@list@out{\chr@match@constraintnames}{\chr@patterns@length}% the permutation:
       \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter{\chr@list@out},}%
       \chr@verbose{Result: \chr@match@result}%
    \fi

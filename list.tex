@@ -15,7 +15,7 @@
 }
 
 % FIXME: we should just use the current listname but is it worth the register and scoping?
-\def\chr@break{\chr@tempcount=100000}
+\def\chr@break{\chr@tempcountc=100000}
 
 % #1 name, #2 and #3 are the indices
 \def\chr@list@swap#1#2#3{%
@@ -33,10 +33,17 @@
    \chr@log{End of List #1}%
 \endgroup}
 
-\def\chr@list@to@string#1#2{\begingroup
+% collects the first #3 elements of the list with name #2 in #1
+\def\chr@list@to@string#1#2#3{\begingroup
    \gdef#1{}%
+   \chr@tempcount=\z@
    \chr@list@iter\elem:=#2\do{%
       \expandafter\chr@gapp\expandafter#1\expandafter{\elem,}%
+      \chr@step\chr@tempcount
+      \chr@log{\the\chr@tempcount, #3}%
+      \ifnum\the\chr@tempcount<#3\else
+         \chr@break
+      \fi
    }%
    \chr@verbose{List #2 to string: '#1'}%
 \endgroup}
@@ -44,12 +51,13 @@
 % similar to \chr@for but does the expansion for the list under the hood :3
 \def\chr@list@iter#1:=#2\do#3{%
    \chr@tempcountc=\z@
+   \edef\chr@length{\csname#2length\endcsname}%
    \loop
       \expandafter\let\expandafter#1\expandafter=\csname#2@\the\chr@tempcountc\endcsname
       #3%
       \chr@step\chr@tempcountc
       % automatic break insertion
-      \ifnum\chr@tempcountc<\csname#2length\endcsname
+      \ifnum\chr@tempcountc<\chr@length
    \repeat
 }
 
