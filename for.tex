@@ -1,0 +1,31 @@
+% basic latex2e @for
+\long\def\chr@for#1:=#2\do#3{%
+   \expandafter\def\expandafter\chr@fortmp\expandafter{#2}%
+   \ifx\chr@fortmp\chr@empty
+   \else
+      \expandafter\chr@forloop#2,\chr@nil,\chr@nil\chr@@#1{#3}%
+   \fi
+}
+
+\long\def\chr@fornoop#1\chr@@#2#3{}
+
+\long\def\chr@forloop#1,#2,#3\chr@@#4#5{%
+   \def#4{#1}%
+   \ifx#4\chr@nnil \else
+      #5%
+      \def#4{#2}%
+      \ifx#4\chr@nnil \else
+         #5%
+         \chr@iforloop#3\chr@@#4{#5}%
+      \fi
+   \fi
+}
+\long\def\chr@iforloop#1,#2\chr@@#3#4{%
+   \def#3{#1}%
+   \ifx#3\chr@nnil
+      \expandafter\chr@fornoop
+   \else #4\relax
+      \expandafter\chr@iforloop
+   \fi
+   #2\chr@@#3{#4}%
+}

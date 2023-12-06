@@ -1,0 +1,21 @@
+% (hopefully plain) TeX implementation of FreeCHR
+
+\catcode`\@=11\relax
+
+\edef\chr@ns{chr@}
+
+\def\chr@version{0.0.1}
+
+% must be an undefined mapping!
+\def\chr@nnil{\chr@nil}
+
+\newdimen\z@ \z@=0pt
+\newdimen\p@ \p@=1pt
+\newcount\@ne \@ne=1
+
+\def\chr@step#1{\advance#1 by\@ne}
+
+\newcount\chr@unused
+\newcount\chr@rulecount       \chr@rulecount=\z@
+\newcount\chr@constraintcount \chr@constraintcount=\z@
+\newcount\chr@tempcount

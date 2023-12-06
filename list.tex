@@ -1,0 +1,33 @@
+% #1 macro name (allows quicker access), #2 comma-separated elements
+\def\chr@list#1#2{%
+   \chr@tempcount=\z@
+   \chr@for\chr@elem:={#2}\do{%
+      % you gotta love tex :3 we have to expand \chr@elem once to persist the content
+      \expandafter\expandafter\expandafter\def
+         \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
+         \expandafter\endcsname\expandafter{\chr@elem}%
+      \chr@step\chr@tempcount
+   }%
+   \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
+   \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+}
+
+% #1 name of list, #2 element to append
+\def\chr@list@append#1#2{%
+   \chr@tempcount=\csname#1length\endcsname
+   \chr@step\chr@tempcount
+   \expandafter\def\csname#1@\the\chr@tempcount\endcsname{#2}%
+   \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+}
+% #1 name of list, #2 index to delete
+\def\chr@list@delete#1#2{%
+   % TODO: check for if last element => pop
+   % otherwise replace with \main{next-idx}
+}
+
+\chr@list{main}{4,2,3}
+\chr@log{\main{1}}
+\chr@log{\mainlength}
+\chr@list@append{main}{5}
+\chr@log{\main{4}}
+\chr@log{\mainlength}
