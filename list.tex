@@ -1,4 +1,4 @@
-% #1 macro name (allows quicker access), #2 comma-separated elements
+% #1 name (allows quicker access), #2 comma-separated elements
 % note: your name (#1) must be a valid command sequence to work!
 \def\chr@list#1#2{%
    \chr@tempcount=\z@
@@ -17,21 +17,43 @@
 % FIXME: we should just use the current listname but is it worth the register and scoping?
 \def\chr@break{\chr@tempcount=100000}
 
+% #1 name, #2 and #3 are the indices
+\def\chr@list@swap#1#2#3{%
+   % the worse, the cake is a lie shuffle!
+   \chr@list@let\chr@swp@temp=#1[#2]%
+   \expandafter\chr@list@let\csname #1@#2\endcsname=#1[#3]%
+   \expandafter\let\csname #1@#3\endcsname=\chr@swp@temp
+}
+
+\def\chr@list@log#1{\begingroup
+   \chr@log{Dumping List #1}%
+   \chr@list@iter\elem:=#1\do{%
+      \chr@log{\elem}%
+   }%
+   \chr@log{End of List #1}%
+\endgroup}
+
 % similar to \chr@for but does the expansion for the list under the hood :3
 \def\chr@list@iter#1:=#2\do#3{%
-   \chr@tempcount=\z@
+   \chr@tempcountc=\z@
    \loop
-      \def#1{\csname#2@\the\chr@tempcount\endcsname}%
+      \def#1{\csname#2@\the\chr@tempcountc\endcsname}%
       #3%
-      \chr@step\chr@tempcount
+      \chr@step\chr@tempcountc
       % automatic break insertion
-      \ifnum\chr@tempcount<\csname#2length\endcsname
+      \ifnum\chr@tempcountc<\csname#2length\endcsname
    \repeat
 }
 
 % get the #3th element of list #2 and store it into #1
 \def\chr@list@let#1=#2[#3]{%
-   \expandafter\let\expandafter#1\expandafter=\csname#2@\the\chr@tempcount\endcsname
+   \expandafter\let\expandafter#1\expandafter=\csname#2@#3\endcsname
+}
+\def\chr@list@set#1[#2]=#3;{%
+   \expandafter\def\csname#1@#2\endcsname{#3}%
+}
+\def\chr@list@eset#1[#2]=#3;{%
+   \expandafter\edef\csname#1@#2\endcsname{#3}%
 }
 \def\chr@list@eget#1=#2[#3]{%
    \expandafter\edef\expandafter#1\expandafter{\expandafter\expandafter\expandafter\chr@strip@meaning\expandafter\meaning\csname#2@\the\chr@tempcount\endcsname}

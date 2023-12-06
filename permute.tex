@@ -1,0 +1,66 @@
+% we use heap's algorithm to generate all permutations of a list
+% to avoid deep expansions for larger lists, i use the non-recursive variant
+% #1 the name of the list
+\def\chr@permute#1{%
+   \let\chr@@output\chr@list@log
+   \edef\chr@tmp{\csname #1length\endcsname}%
+   \expandafter\chr@permute@generate\expandafter{\chr@tmp}{#1}%
+   % TODO: skip empty on retrieval
+}
+
+\def\chr@permute@init#1{%
+   \chr@verbose{Initialize array C.}%
+   \def\chr@tmp{0}
+   \ifnum#1>1\relax
+      \chr@tempcount=\z@
+      \chr@step\chr@tempcount % we step early to skip the 0 :3
+      \loop
+         \chr@app\chr@tmp{,0}%
+         \chr@step\chr@tempcount
+         \ifnum\the\chr@tempcount<#1\relax
+      \repeat
+   \fi
+   % c allows us to use expandafter more easily and is consistent with the pseudo-code
+   \expandafter\chr@list\expandafter{\expandafter C\expandafter}\expandafter{\chr@tmp}
+}
+% #1: n of iterations, #2: list name
+% as a slight modification we call \chr@@output for 'output'
+\def\chr@permute@generate#1#2{\begingroup
+   \chr@verbose{Generate all permutations of list #2 (length: #1).}%
+   \ifnum#1=\z@
+      \gdef\chr@return{}%
+   \else
+      % initialize new array - also known as the ""list""
+      \chr@permute@init{#1}%
+      \chr@@output{#2}%
+      % tempcount will be our i
+      \chr@tempcount=1\relax
+      \let\chr@permute@done\chr@empty
+      \loop
+         \ifnum\the\chr@tempcount<#1\relax % essentially the head/while condition
+            \edef\chr@c@i{\C{\the\chr@tempcount}} % number, we now we can edef C[i]
+            \ifnum\chr@c@i<\the\chr@tempcount\relax
+               \ifodd\the\chr@tempcount\relax% careful, we have to swap here, as tex presents \ifodd, but the default implementation uses "\ifeven"
+                  \chr@list@swap{#2}{\chr@c@i}{\the\chr@tempcount}% swap(A[C[i]], A[i])
+               \else
+                  \chr@list@swap{#2}{0}{\the\chr@tempcount}% swap(A[0], A[i])
+               \fi
+               \chr@@output{#2}%
+               % without numexpr this is like... really painful
+               \chr@tempcountb=\chr@c@i\relax
+               \chr@step\chr@tempcountb
+               \chr@list@eset C[\the\chr@tempcount]=\the\chr@tempcountb;% C[i] := C[i] + 1
+               \chr@tempcount=1\relax % i := 1
+            \else
+               \chr@list@set C[\the\chr@tempcount]=0;% C[i] := 0
+               \chr@step\chr@tempcount % i++
+            \fi
+         \else
+            % while loop is done!
+            \let\chr@permute@done\chr@ns
+         \fi
+         \ifx\chr@permute@done\chr@empty
+      \repeat
+   \fi
+   \endgroup
+}
