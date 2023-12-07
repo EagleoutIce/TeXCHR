@@ -1,0 +1,39 @@
+% only gets the name for one solver, for us this must always be the return of compose: `composite_solver`
+% #1 is the list of constraints to run for (currently needs the name)
+\def\chr@run#1{%
+   \def\chr@run@solvername{composite_solver}%
+   \chr@list{chr@constraints}{}%
+   \chr@list@concat{chr@constraints}{#1}{@empty@list}%
+   % we just directly apply to the constraint in #1
+   \chr@list@concat{chr@list@return@solve}{#1}{@empty@list}%
+   \let\chr@run@fixpoint=\chr@empty\relax
+   \chr@runcyclecount=\z@\relax
+   \loop
+      \chr@step\chr@runcyclecount
+      \bgroup
+      \chr@log{::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::}
+      \chr@log{Running cycle: \the\chr@runcyclecount}%
+      % run the solver we have in '\chr@run@solvername'
+      \chr@program@get{\chr@run@solvername}{chr@constraints}%
+      %
+      \chr@list@equal{chr@constraints}{chr@list@return@solve}%
+         \chr@log{Reached Fixpoint!}%
+         % reached fix-point
+         \global\let\chr@run@fixpoint=\chr@ns\relax
+      \fi
+      % update
+      \chr@list@concat{chr@list@return@solve}{chr@constraints}{@empty@list}%
+      \ifnum\chr@runcyclecount<\chr@maxruncycles\relax \else
+         \global\let\chr@run@fixpoint=\chr@ns\relax
+      \fi
+      \chr@log{::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::}
+      \egroup
+      \ifx\chr@run@fixpoint\chr@empty
+   \repeat
+   \chr@list@log{chr@constraints}
+}
+
+\def\chr@run@inline#1{%
+   \chr@list{chr@run@inline@list}{#1}%
+   \chr@run{chr@run@inline@list}%
+}

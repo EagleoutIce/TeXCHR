@@ -32,8 +32,11 @@
 \newcount\chr@tempcount
 \newcount\chr@tempcountb
 \newcount\chr@tempcountc
+\newcount\chr@runcyclecount
 \newif\ifchr@tempif@
 \newif\ifchr@result@
+% maximum numbers of runs
+\def\chr@maxruncycles{30}
 
 \def\chr@app#1#2{%
    \begingroup\toks@\expandafter{#1#2}\xdef\@tmp{\the\toks@}\endgroup

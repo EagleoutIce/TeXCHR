@@ -16,7 +16,7 @@
          \def\chr@input@constraints{##1}%
          \chr@s
          % compare if the constraints have changed => did this solver make us happy?
-         \chr@list@equal{chr@constraints}{chr@list@return} \else%
+         \chr@list@equal{chr@constraints}{chr@list@return} \else
             % if so, break, this solver is nice!
             \chr@break
          \fi

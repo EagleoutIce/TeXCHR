@@ -11,15 +11,22 @@
    \let\rule=\chr@rule
    \let\body=\chr@body
    \let\ebody=\chr@ebody
+   \let\run=\chr@run
    % TODO: find better name :D
    \let\Rule=\chr@rule@inline
    \let\Compose=\chr@compose@inline
+   \let\Run=\chr@run@inline
+   \let\LimitCycles=\chr@limitcycles
    \let\defsolvers=\chr@program@solvers
    \chr@list{chr@constraints}{}%
    % list of rules for the current program
    \chr@list{chr@rules}{}%
    \ignorespaces#2\relax
    \endgroup
+}
+
+\def\chr@limitcycles#1{%
+   \def\chr@maxruncycles{#1}%
 }
 
 % program-scoped setter and getter

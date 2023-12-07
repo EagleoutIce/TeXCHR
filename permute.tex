@@ -81,7 +81,7 @@
             \fi
          \else
             % while loop is done!
-            \let\chr@permute@done\chr@ns
+            \let\chr@permute@done=\chr@ns\relax
          \fi
          \ifx\chr@permute@done\chr@empty
       \repeat
