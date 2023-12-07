@@ -25,7 +25,7 @@
       }%
       \ifx\chr@constraints@to@fire\chr@empty
          \chr@verbose{No guard matched.}%
-         \chr@toreturn{}%
+         \def\chr@toreturn{}%
       \else % here, we have a matched head and guard, and we can actually apply the rule!
          % we have the length of the kept head in #1, now we shorten the list to only contain it!
          \chr@log{Firing rule '#5' with constraints: \chr@constraints@to@fire}%
