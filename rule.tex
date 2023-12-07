@@ -48,6 +48,11 @@
 \def\chr@body#1{%
    \chr@list{result}{#1}%
 }
+\def\chr@ebody#1{%
+   \edef\chr@tmp{#1}\def\chr@listname{result}%
+   \chr@list{result}{}%
+   \expandafter\chr@list@append\expandafter{\expandafter\chr@listname\expandafter}\expandafter{\chr@tmp}%
+}
 
 % variant of \chr@rule, which allows for a name as #1 (which must be unique)
 % and uses it to construct lists in-place

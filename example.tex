@@ -50,24 +50,28 @@
 %    \chr@list@log{chr@constraints}%
 % }
 
-\def\tuple#1,#2;{\def\fst{#1}\def\snd{#2}}
+\def\tuplehelper#1,#2\@nil{\def\fst{#1}\def\snd{#2}}
+\def\tuple#1{\edef\@tmp{#1}\expandafter\tuplehelper\@tmp\@nil}
 % plain tex has no default add
-\def\add#1#2{\chr@tempcounter=#1\advance\chr@tempcounter by #2\relax\edef\res{\the\chr@tempcounter}}
+\def\add#1#2{\chr@tempcount=#1\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
 \chr{fib test}{%
    \makelist{chr@constraints}{{0,1}}%
    \Compose{
       \Rule{main}%
       {} % empty kept head
-      {} % empty removed head
+      {{\chr@true}} % empty removed head
       {\chr@true}
       {% poor mans tuple
-         \chr@log{\c0}
-         \expandafter\tuple\c{0};%
-         \chr@log{\c0, \fst, \snd}%
+         \tuple{\c{0}}%
          \add{\fst}{\snd}%
-         \body{\snd,\res}
+         % ebody expands its argument to replace
+         \ebody{{\snd,\res}}%
       }
    }
+   \chr@program@get{composite_solver}{chr@constraints}
+   % manually apply additional times
+   \chr@program@get{composite_solver}{chr@constraints}
+   \chr@program@get{composite_solver}{chr@constraints}
    \chr@program@get{composite_solver}{chr@constraints}
    \chr@list@log{chr@constraints}%
 }
