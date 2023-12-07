@@ -29,6 +29,11 @@
    \expandafter\let\csname #1@#3\endcsname=\chr@swp@temp
 }
 
+\def\chr@list@output#1{%
+   \chr@list@to@string\chr@tmp{#1}{\csname #1length\endcsname}%
+   \chr@tmp
+}
+
 \def\chr@list@log#1{\begingroup
    \ifnum\csname#1length\endcsname=\z@\relax
       \chr@log{List #1 is empty}%
