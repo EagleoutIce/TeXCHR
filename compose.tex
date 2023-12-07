@@ -1,16 +1,20 @@
 % list name of solvers list
 % :: solvers -> solver
 \def\chr@compose#1{%
-   \edef\solvernames{#1}%
+   % execute rules first, we collect them globally
+   \chr@list@iter\chr@make@s:=#1\do{%
+      \chr@make@s
+   }%
    \chr@program@set{composite_solver}##1{%
       \chr@list@to@string\chr@temp@list{##1}{\csname##1length\endcsname}%
-      \chr@verbose{running composite solver with '##1' (content: [\chr@temp@list])}%
+      \chr@verbose{Running composite solver with '##1' ===========================}%
+      \chr@verbose{Constraint Store: [\chr@temp@list]}
       \chr@list@concat{chr@list@return}{##1}{@empty@list}%
       % iterate over every solver
-      \chr@list@iter\chr@s:=\solvernames\do{%
-         % contract: every solver must store its provider in \chr@toreturn
-         \chr@s % TODO: just get the rule fn?
-         \chr@program@get{chr@toreturn}{##1}
+      \chr@list@iter\chr@s:=chr@rules\do{%
+         % contract: every solver must store its solver in \chr@toreturn
+         \def\chr@input@constraints{##1}%
+         \chr@s
          % compare if the constraints have changed => did this solver make us happy?
          \chr@list@equal{chr@constraints}{chr@list@return} \else%
             % if so, break, this solver is nice!

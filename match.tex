@@ -8,14 +8,14 @@
    \gdef\chr@match@result{}%
    \def\chr@match@patternnames{#1}%
    \def\chr@match@constraintnames{#2}%
-   \let\chr@@output\chr@match@output
+   \let\chr@@output=\chr@match@output@processor\relax
    \chr@permute{#2}{\chr@patterns@length}%
-   \chr@verbose{Match found: '\chr@match@result'}%
+   \chr@verbose{Matches found: '\chr@match@result', for \chr@constraints@length\space constraint(s) and \chr@patterns@length\space pattern(s)}%
 }
 
-\def\chr@match@output{\begingroup
+\def\chr@match@output@processor{\begingroup
    % for list name '#2', try each pattern in list '#1' respectively and return true if all do, return false otherwise
-   \chr@tempcountc=\z@
+   \chr@tempcountc=\z@\relax
    \let\chr@match@stop=\chr@ns
    \gdef\chr@match@output{}%
    \loop

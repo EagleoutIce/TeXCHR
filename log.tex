@@ -1,6 +1,6 @@
 \def\chr@log#1{%
 \begingroup % maybe switch to message?
-   \let\par\space
-   \immediate\write\chr@unused{> #1}
+   \let\par=\space\relax
+   \immediate\write\chr@unused{> #1}\relax
 \endgroup}
 \let\chr@verbose=\chr@log

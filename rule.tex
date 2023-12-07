@@ -6,11 +6,12 @@
 % returns a solver (stored in \chr@toreturn)
 \def\chr@rule#1#2#3#4#5{%
    % takes the name of the constraint list to work on
-   \chr@program@set{chr@toreturn}##1{%
+   % add it to the list of rules
+   \chr@list@append{chr@rules}{%
+      \chr@verbose{Running rule '#5' -------------------------------------------------------}%
       % first, let's match
-      \chr@list@concat{chr@all}{#1}{#2}% we want k + r
-      \chr@match{chr@all}{##1}%
-      \chr@log{Matched: \chr@match@result}%
+      \chr@list@concat{chr@all}{#2}{#1}% we want r + k, why? this way i can just remove the first 'r' elements, instead of having to keep the first k
+      \chr@match{chr@all}{\chr@input@constraints}%
       % iterate and check if the guards like them.
       % we pass in the list getter to the guard as \cs, so it can use \cs1, \cs2, ...
       \let\chr@constraints@to@fire=\chr@empty
@@ -30,28 +31,31 @@
          \chr@log{Firing rule '#5' with constraints: \chr@constraints@to@fire}%
          % we copy this way, ugly? yes. nice? i dunno
          \chr@list{chr@list@tmp}{\chr@constraints@to@fire}%
-         % TODO: we have to remove the _unique_ respective elements from the constraints? first?
-         \chr@list@to@string\chr@constraints@remains{chr@list@tmp}{\csname#1length\endcsname}%
+         % we remove the first length elements
+         \chr@list@to@string\chr@constraints@remains{chr@list@tmp}{\csname#2length\endcsname}%
          \chr@list{chr@c@rem}{\chr@constraints@remains}% these are those to remove
-         \chr@list@iter\chr@elem:=chr@c@rem\do{%
-            \chr@list@remove{chr@constraints}{\chr@elem}% these are those to keep
-         }%
+         \def\chr@constraints@name{chr@constraints}%
          % the body should return a new list named... result! which we now simply concat, it can still access c for a new list
          \let\c=\chr@constraints
+         \chr@list{chr@result}{}%
          #4
-         \chr@list@concat{chr@tmp}{chr@constraints}{result}%
-         \chr@list@concat{chr@constraints}{chr@tmp}{@empty@list}%
+         \chr@list@iter\chr@elem:=chr@c@rem\do{%
+            \expandafter\chr@list@remove\expandafter{\expandafter\chr@constraints@name\expandafter}\expandafter{\chr@elem}% these are those to keep
+         }%
+         \chr@list@iter\chr@elem:=chr@result\do{%
+            \expandafter\chr@list@append\expandafter{\expandafter\chr@constraints@name\expandafter}\expandafter{\chr@elem}%
+         }%
+         \chr@list@log{chr@constraints}%
       \fi
    }
 }
 
-\def\chr@body#1{%
-   \chr@list{result}{#1}%
+\def\chr@body#1{% copy-pasta
+   \def\chr@tmp{#1}\def\chr@listname{chr@result}%
+   \expandafter\chr@list@append\expandafter{\expandafter\chr@listname\expandafter}\expandafter{\chr@tmp}%
 }
 \def\chr@ebody#1{%
-   \edef\chr@tmp{#1}\def\chr@listname{result}%
-   \chr@list{result}{}%
-   \expandafter\chr@list@append\expandafter{\expandafter\chr@listname\expandafter}\expandafter{\chr@tmp}%
+   \chr@list@eappend{chr@result}{#1}%
 }
 
 % variant of \chr@rule, which allows for a name as #1 (which must be unique)

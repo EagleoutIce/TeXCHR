@@ -23,7 +23,7 @@
 \def\chr@permute@fingerprint#1#2{%
    % TODO: make even single values unique! or just change the
    \chr@list@to@string\chr@list@coll{#1}{\chr@permute@output@length}%
-   \expandafter\let\expandafter\chr@permute@fingerprint@cmd\expandafter=\csname chr@permute@\chr@list@coll\endcsname
+   % \expandafter\let\expandafter\chr@permute@fingerprint@cmd\expandafter=\csname chr@permute@\chr@list@coll\endcsname
    %\ifx\chr@permute@fingerprint@cmd\relax
    %   \expandafter\let\csname chr@permute@\chr@list@coll\endcsname=\chr@ns\relax
       #2%
