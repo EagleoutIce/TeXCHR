@@ -3,21 +3,28 @@
 \def\chr@compose#1{%
    \edef\solvernames{#1}%
    \chr@program@set{composite_solver}##1{%
-      \def\chr@toreturn{##1}%
+      \chr@list@concat{chr@list@return}{##1}{@empty@list}%
       % iterate over every solver
       \chr@list@iter\chr@s:=\solvernames\do{%
          % contract: every solver must store its result in \chr@toreturn
-         \chr@s{##1}
+         \chr@s % TODO: just get the rule fn?
+         \chr@program@get{chr@toreturn}{##1}
          % compare if the constraints have changed => did this solver make us happy?
-         \chr@list@equal{##1}{\chr@toreturn}%
+         \chr@list@equal{chr@constraints}{chr@list@return} \else%
             % if so, break, this solver is nice!
             \chr@break
          \fi
       }%
       % TODO: maybe just keep toreturn in local register?
-      \chr@toreturn
+      % chr@constraints
    }
    % technically it is up to the caller to do that :eyes:
    % on call, we simply assume, that '\constraintsname' is set
    % \chr@program@get{composite_solver}%
+}
+
+\def\chr@compose@inline#1{%
+   % TODO: support nesting?
+   \chr@list{\chr@current @solvers}{#1}%
+   \chr@compose{\chr@current @solvers}%
 }

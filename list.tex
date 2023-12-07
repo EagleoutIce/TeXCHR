@@ -16,6 +16,7 @@
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
    \chr@verbose{Created list #1 with \the\chr@tempcount\space element(s).}%
 }
+\chr@list{@empty@list}{}
 
 % FIXME: we should just use the current listname but is it worth the register and scoping?
 \def\chr@break{\chr@tempcountc=100000}
@@ -103,6 +104,23 @@
       }%
    \fi
    \chr@verbose{Concatenated lists #2 and #3 into #1 (length: \csname#1length\endcsname).}%
+}
+
+% remove the first occurence of #2 in list with name #1
+\def\chr@list@remove#1#2{%
+   \chr@verbose{Remove first occurence of #2 in list #1.}%
+   \chr@list@log{#1}%
+   \let\chr@scndelem=#2%
+   \chr@list{#1@tmp}{}%
+   \def\chr@tmplistname{#1@tmp}%
+   \chr@list@iter\chr@elem:=#1\do{%
+      \ifx\chr@elem\chr@scndelem
+      \else
+         \expandafter\chr@list@append\expandafter{\expandafter\chr@tmplistname\expandafter}\expandafter{\chr@elem}%
+      \fi
+   }%
+   \chr@list@concat{#1}{\chr@tmplistname}{@empty@list}% poor mans overwrite, code getting really horrible here... could use some thought
+   \chr@list@log{#1}%
 }
 
 % names of both lists, expands to \chr@true if equal, \chr@false otherwise

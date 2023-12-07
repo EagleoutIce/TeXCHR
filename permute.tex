@@ -2,8 +2,7 @@
 % to avoid deep expansions for larger lists, i use the non-recursive variant
 %
 % well, i noticed too late that we only need permutations of size n and honestly it is getting later and
-% later.... i originally tried fingerprinting but it does not work if a constraint appears multiple times.
-% so we accept, for the time being, that the same constraints can be checked multiple times
+% later.... i tried fingerprinting but it does not work if a constraint appears multiple times...
 %
 % #1 the name of the list, please define '\chr@@output' to run on the list after each permutation
 % this macro receives no arguments, but can read the same list you gave to permute!
@@ -26,10 +25,10 @@
    \chr@list@to@string\chr@list@coll{#1}{\chr@permute@output@length}%
    \expandafter\let\expandafter\chr@permute@fingerprint@cmd\expandafter=\csname chr@permute@\chr@list@coll\endcsname
    %\ifx\chr@permute@fingerprint@cmd\relax
-      %\expandafter\let\csname chr@permute@\chr@list@coll\endcsname=\chr@ns\relax
+   %   \expandafter\let\csname chr@permute@\chr@list@coll\endcsname=\chr@ns\relax
       #2%
    %\else % we already have this fingerprint
-      %\chr@verbose{    Skip for fingerprint is present.}%
+   %   \chr@verbose{    Skip for fingerprint is present.}%
    %\fi
 }
 
