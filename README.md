@@ -17,18 +17,35 @@ This is based on the [Python FreeCHR implementation](https://gist.github.com/SRe
 
 ## Work in Progress
 
-For the time, `rule` is not implemented so you can only have fun with `match` and `compose` as well as many helper functions written to achieve the same result as the Python implementation.
-The current happy news is that the following correctly finds all permutations that match the constraints:
+You want fibonacci? You can have fibonacci!
 
 ```tex
-\chr{Match Test}{%
-   \makelist{constraints}{1,2,3}
-   \makelist{patterns}{%
-      {\ifnum\c>2},
-      {\ifnum\c>0}% \c is the current constraint
+\chr{fib test}{%
+   \LimitCycles{25}
+   \Compose{
+      \Rule{main}%
+      {} % empty kept head
+      {{\chr@true}} % removed head
+      {\chr@true}
+      {% poor mans tuple
+         \tuple{\c{0}}%
+         \add{\fst}{\snd}%
+         % ebody expands its argument to replace
+         \ebody{\snd:\res}%
+      }
    }
-   \match{patterns}{constraints}
+   \Run{{0:1}}
 }
 ```
 
-Besides, integer arithmetic is limited by TeX and `compose` is limited to once-per-program (I was to lazy implementing proper nesting).
+To work with tuples you need some helpers:
+
+```tex
+\def\tuplehelper#1:#2\@nil{\def\fst{#1}\def\snd{#2}}
+\def\tuple#1{\edef\@tmp{#1}\expandafter\tuplehelper\@tmp\@nil}
+\def\add#1#2{\chr@tempcount=#1\relax\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
+```
+
+See the [`example.tex`](example.tex) for a full example.
+
+Besides, integer arithmetic is limited by TeX and `compose` is limited to once-per-program (I was too lazy to implement proper nesting).
