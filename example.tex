@@ -74,13 +74,34 @@
 %
 %    \chr@list@log{chr@constraints}%
 % }
+% \chr{fib test}{%
+%    \enablelog
+%    \LimitCycles{25}
+%    \Compose{
+%       \Rule{main}%
+%       {} % empty kept head
+%       {{\chr@true}} % removed head
+%       {\chr@true}
+%       {% poor mans tuple
+%          \tuple{\c{0}}%
+%          \add{\fst}{\snd}%
+%          % ebody expands its argument to replace
+%          \ebody{\snd:\res}%
+%       }
+%    }
+%    \Run{{0:1}}
+%    % print it to file :3
+%    \printlist{chr@constraints}%
+% }
+
 \chr{fib test}{%
    \enablelog
-   \LimitCycles{25}
+   \LimitCycles{3}
    \Compose{
       \Rule{main}%
       {} % empty kept head
-      {{\chr@true}} % removed head
+      % \chr@log{::::::: \fst,\snd}
+      {{\tuple{\c}\ifnum\fst>0}} % removed head
       {\chr@true}
       {% poor mans tuple
          \tuple{\c{0}}%
@@ -89,7 +110,7 @@
          \ebody{\snd:\res}%
       }
    }
-   \Run{{0:1}}
+   \Run{{1:1},{0:1},{-1:1}}
    % print it to file :3
    \printlist{chr@constraints}%
 }
