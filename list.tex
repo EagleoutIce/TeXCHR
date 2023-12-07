@@ -8,13 +8,13 @@
             % you gotta love tex :3 we have to expand \chr@elem once to persist the content
             \expandafter\expandafter\expandafter\def
                \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
-               \expandafter\endcsname\expandafter{\chr@elem}%
+               \expandafter\endcsname\expandafter{\expandafter{\chr@elem}}%
             \chr@step\chr@tempcount
       }%
    \fi
    \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
    \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
-   \chr@verbose{Created list #1 with \the\chr@tempcount\space element(s).}%
+   \chr@verbose{Created list '#1' (\the\chr@tempcount).}%
 }
 \chr@list{@empty@list}{}
 
@@ -30,15 +30,12 @@
 }
 
 \def\chr@list@log#1{\begingroup
-   \chr@log{Dumping List #1}%
    \ifnum\csname#1length\endcsname=\z@\relax
-      \chr@log{Empty List}%
+      \chr@log{List #1 is empty}%
    \else
-      \chr@list@iter\elem:=#1\do{%
-         \chr@log{\elem}%
-      }%
+      \chr@list@to@string\chr@tmp@list{#1}{\csname#1length\endcsname}%
+      \chr@log{List #1: \chr@tmp@list}%
    \fi
-   \chr@log{End of List #1}%
 \endgroup}
 
 % collects the first #3 elements of the list with name #2 in #1
@@ -59,7 +56,7 @@
          \fi
       }%
    \fi\fi
-   \chr@verbose{List #2 to string: '#1' (#3)}%
+   % \chr@verbose{List #2 to string: '#1' (#3)}%
 \endgroup}
 
 % similar to \chr@for but does the expansion for the list under the hood :3
@@ -103,7 +100,7 @@
          \expandafter\chr@list@append\expandafter{\expandafter\chr@tmp@listname\expandafter}\expandafter{\chr@elem}%
       }%
    \fi
-   \chr@verbose{Concatenated lists #2 and #3 into #1 (length: \csname#1length\endcsname).}%
+   \chr@verbose{Lists: #1 = #2 ++ #3 (length: \csname#1length\endcsname).}%
 }
 
 % remove the first occurence of #2 in list with name #1
@@ -139,7 +136,7 @@
          \chr@list@eget\@chr@right=#2[\the\chr@tempcount]%
          % compar
          \ifx\@chr@left\@chr@right
-            \chr@verbose{Lists are equal at index \the\chr@tempcount.}%
+            % \chr@verbose{Lists are equal at index \the\chr@tempcount.}%
          \else
             \chr@verbose{Lists are not equal at index \the\chr@tempcount\space (\@chr@left\space vs. \@chr@right).}%
             \global\chr@result@false

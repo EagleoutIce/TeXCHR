@@ -3,10 +3,12 @@
 \def\chr@compose#1{%
    \edef\solvernames{#1}%
    \chr@program@set{composite_solver}##1{%
+      \chr@list@to@string\chr@temp@list{##1}{\csname##1length\endcsname}%
+      \chr@verbose{running composite solver with '##1' (content: [\chr@temp@list])}%
       \chr@list@concat{chr@list@return}{##1}{@empty@list}%
       % iterate over every solver
       \chr@list@iter\chr@s:=\solvernames\do{%
-         % contract: every solver must store its result in \chr@toreturn
+         % contract: every solver must store its provider in \chr@toreturn
          \chr@s % TODO: just get the rule fn?
          \chr@program@get{chr@toreturn}{##1}
          % compare if the constraints have changed => did this solver make us happy?
