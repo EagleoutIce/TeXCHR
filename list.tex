@@ -8,7 +8,7 @@
             % you gotta love tex :3 we have to expand \chr@elem once to persist the content
             \expandafter\expandafter\expandafter\def
                \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
-               \expandafter\endcsname\expandafter{\expandafter{\chr@elem}}%
+               \expandafter\endcsname\expandafter{\chr@elem}%
             \chr@step\chr@tempcount
       }%
    \fi
