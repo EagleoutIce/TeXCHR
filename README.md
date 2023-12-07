@@ -6,7 +6,7 @@ Welcome to TeXCHR (spoken as "tech-cher")! To run the example you just need plai
 tex example.tex
 ```
 
-I've written this more as a joke than a real piece of good TeX software, you could do a lot better and several macros are now over-generalized (most do not need arguments now, as we could just lock a name like `\constraints` for each program).
+I've written this more as a joke than a real piece of good TeX software, you could do a lot better and several macros are now over-generalized (most do not need arguments, as we could just lock a name like `\constraints` for each program).
 The main file is [`chr.tex`](chr.tex), which includes everything desired to get chr for your (_plain_) TeX project.
 
 Feel free to improve it or to criticize it, I'm open to suggestions.
