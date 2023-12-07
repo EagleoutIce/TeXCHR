@@ -53,7 +53,7 @@
 \def\tuplehelper#1:#2\@nil{\def\fst{#1}\def\snd{#2}}
 \def\tuple#1{\edef\@tmp{#1}\expandafter\tuplehelper\@tmp\@nil}
 % plain tex has no default add
-\def\add#1#2{\chr@tempcount=#1\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
+\def\add#1#2{\chr@tempcount=#1\relax\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
 % \chr{fib test}{%
 %    \makelist{chr@constraints}{{0:1}}%
 %    \Compose{
