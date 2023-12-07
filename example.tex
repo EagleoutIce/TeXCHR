@@ -40,12 +40,34 @@
 %    \chr@program@get{chr@toreturn}{constraints}
 %    \chr@list@log{chr@constraints}%
 % }
-\chr{Compose Test}{%
-   \makelist{chr@constraints}{1,2,3,4}%
-   \Compose{%
-      \Rule{base-case}{}{{\ifnum\c1>0}}{\chr@true}{2}%
-      \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\chr@true}{3}%
-   }%
+% \chr{Compose Test}{%
+%    \makelist{chr@constraints}{1,2,3,4}%
+%    \Compose{%
+%       \Rule{base-case}{}{{\ifnum\c1>0}}{\chr@true}{2}%
+%       \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\chr@true}{3}%
+%    }%
+%    \chr@program@get{composite_solver}{chr@constraints}
+%    \chr@list@log{chr@constraints}%
+% }
+
+\def\tuple#1,#2;{\def\fst{#1}\def\snd{#2}}
+% plain tex has no default add
+\def\add#1#2{\chr@tempcounter=#1\advance\chr@tempcounter by #2\relax\edef\res{\the\chr@tempcounter}}
+\chr{fib test}{%
+   \makelist{chr@constraints}{{0,1}}%
+   \Compose{
+      \Rule{main}%
+      {} % empty kept head
+      {} % empty removed head
+      {\chr@true}
+      {% poor mans tuple
+         \chr@log{\c0}
+         \expandafter\tuple\c{0};%
+         \chr@log{\c0, \fst, \snd}%
+         \add{\fst}{\snd}%
+         \body{\snd,\res}
+      }
+   }
    \chr@program@get{composite_solver}{chr@constraints}
    \chr@list@log{chr@constraints}%
 }

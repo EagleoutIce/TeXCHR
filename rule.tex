@@ -37,6 +37,7 @@
             \chr@list@remove{chr@constraints}{\chr@elem}% these are those to keep
          }%
          % the body should return a new list named... result! which we now simply concat, it can still access c for a new list
+         \let\c=\chr@constraints
          #4
          \chr@list@concat{chr@tmp}{chr@constraints}{result}%
          \chr@list@concat{chr@constraints}{chr@tmp}{@empty@list}%
@@ -50,11 +51,10 @@
 
 % variant of \chr@rule, which allows for a name as #1 (which must be unique)
 % and uses it to construct lists in-place
-% furthermore, it wraps #5 in \chr@body
 \def\chr@rule@inline#1#2#3#4#5{%
    \chr@list{#1@kept}{#2}%
    \chr@list{#1@rem}{#3}%
-   \chr@rule{#1@kept}{#1@rem}{#4}{\chr@body{#5}}{#1}%
+   \chr@rule{#1@kept}{#1@rem}{#4}{#5}{#1}%
 }
 
 % #2 if matches, #3 otherwise
