@@ -27,7 +27,7 @@ You want fibonacci? You can have fibonacci!
       {} % empty kept head
       {{\chr@true}} % removed head
       {\chr@true}
-      {% poor mans tuple
+      {% poor man's tuple
          \tuple{\c{0}}%
          \add{\fst}{\snd}%
          % ebody expands its argument to replace

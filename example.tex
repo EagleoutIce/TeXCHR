@@ -61,7 +61,7 @@
 %       {} % empty kept head
 %       {{\chr@true}} % removed head
 %       {\chr@true}
-%       {% poor mans tuple
+%       {%
 %          \tuple{\c{0}}%
 %          \add{\fst}{\snd}%
 %          % ebody expands its argument to replace
@@ -82,7 +82,7 @@
 %       {} % empty kept head
 %       {{\chr@true}} % removed head
 %       {\chr@true}
-%       {% poor mans tuple
+%       {%
 %          \tuple{\c{0}}%
 %          \add{\fst}{\snd}%
 %          % ebody expands its argument to replace
@@ -103,7 +103,7 @@
       % \chr@log{::::::: \fst,\snd}
       {{\tuple{\c}\ifnum\fst>0}} % removed head
       {\chr@true}
-      {% poor mans tuple
+      {% poor man's tuple
          \tuple{\c{0}}%
          \add{\fst}{\snd}%
          % ebody expands its argument to replace
