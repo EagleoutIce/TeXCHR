@@ -1,10 +1,15 @@
-\def\chr@log#1{%
+\def\chr@@log#1{%
 \begingroup % maybe switch to message?
    \let\par=\space\relax
    \immediate\write\chr@unused{> #1}\relax
 \endgroup}
-\let\chr@verbose=\chr@log
+% \let\chr@verbose=\chr@log
 
 \def\@gobble#1{}
 \let\chr@log=\@gobble
 \let\chr@verbose=\@gobble
+
+\def\chr@enable@log{%
+   \let\chr@log=\chr@@log
+   \let\chr@verbose=\chr@@log
+}
