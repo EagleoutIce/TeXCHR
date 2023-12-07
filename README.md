@@ -30,3 +30,5 @@ The current happy news is that the following correctly finds all permutations th
    \match{patterns}{constraints}
 }
 ```
+
+Besides, integer arithmetic is limited by TeX and `compose` is limited to once-per-program (I was to lazy implementing proper nesting).
