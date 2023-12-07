@@ -4,3 +4,7 @@
    \immediate\write\chr@unused{> #1}\relax
 \endgroup}
 \let\chr@verbose=\chr@log
+
+\def\@gobble#1{}
+\let\chr@log=\@gobble
+\let\chr@verbose=\@gobble
