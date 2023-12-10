@@ -1,54 +1,5 @@
-\errorcontextlines99
 \input chr.tex
 
-\def\fail{\errmessage{FAIL}}
-\def\yes{\chr@log{YES}}
-
-% \chr{List Test}{
-%    \makelist{example}{1,2,3,4}
-%    \listequal{example}{example} \yes \else \fail \fi
-%    \makelist{example2}{1,2,3,4}
-%    \listequal{example}{example2} \yes \else \fail \fi
-%    \makelist{example3}{1,2,3,4,5}
-%    \listequal{example}{example3} \fail \else \yes \fi
-%    \makelist{example4}{1,2,4,3}
-%    \listequal{example}{example4} \fail \else \yes  \fi
-% }
-
-% \chr{Permute Test}{
-%    \makelist{example}{1,2,3}
-%    \def\chr@@output{\chr@list@log{example}}
-%    \permute{example}{2}
-% }
-
-% % % i like patterns more than pattern tbh.
-% % for a pattern, '\c' is always the constraint passed!
-% \chr{Match Test}{%
-%    \makelist{constraints}{1,2,3,4}%
-%    \makelist{patterns}{%
-%       {\ifnum\c>2},
-%       {\ifnum\c>0}%
-%    }
-%    \match{patterns}{constraints}
-% }
-
-% \chr{Rule Test}{%
-%    \makelist{constraints}{1,2,3,4}%
-%    \Rule{base-case}{}{{\ifnum\c1>0}}{\true}{}%
-%    \chr@program@get{chr@toreturn}{constraints}
-%    \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\true}{3}%
-%    \chr@program@get{chr@toreturn}{constraints}
-%    \chr@list@log{chr@constraints}%
-% }
-% \chr{Compose Test}{%
-%    \makelist{chr@constraints}{1,2,3,4}%
-%    \Compose{%
-%       \Rule{base-case}{}{{\ifnum\c1>0}}{\true}{2}%
-%       \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\true}{3}%
-%    }%
-%    \chr@program@get{composite_solver}{chr@constraints}
-%    \chr@list@log{chr@constraints}%
-% }
 
 \makeatletter
 \def\tuplehelper#1:#2\@nil{\def\fst{#1}\def\snd{#2}}
@@ -56,46 +7,6 @@
 % plain tex has no default add
 \def\add#1#2{\chr@tempcount=#1\relax\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
 \makeatother
-
-% \chr{fib test}{%
-%    \makelist{chr@constraints}{{0:1}}%
-%    \Compose{
-%       \Rule{main}%
-%       {} % empty kept head
-%       {{\true}} % removed head
-%       {\true}
-%       {%
-%          \tuple{\c{0}}%
-%          \add{\fst}{\snd}%
-%          % ebody expands its argument to replace
-%          \ebody{\snd:\res}%
-%       }
-%    }
-%    \chr@program@get{composite_solver}{chr@constraints}
-%    % manually apply additional times
-%    \chr@program@get{composite_solver}{chr@constraints}
-%
-%    \chr@list@log{chr@constraints}%
-% }
-% \chr{fib test}{%
-%    \enablelog
-%    \LimitCycles{25}
-%    \Compose{
-%       \Rule{main}%
-%       {} % empty kept head
-%       {{\true}} % removed head
-%       {\true}
-%       {%
-%          \tuple{\c{0}}%
-%          \add{\fst}{\snd}%
-%          % ebody expands its argument to replace
-%          \ebody{\snd:\res}%
-%       }
-%    }
-%    \Run{{0:1}}
-%    % print it to file :3
-%    \printlist{chr@constraints}%
-% }
 
 \chr{fib test}{%
    \enablelog
@@ -113,7 +24,8 @@
          \ebody{\snd:\res}%
       }
    }
-   \Run{{1:1},{0:1},{-1:1}}
+   % here we want to show, that we can ignore constraints :D
+   \Run{{0:1},{1:1},{-1:1}}
    % print it to file :3
    \printlist{chr@constraints}%
 }
