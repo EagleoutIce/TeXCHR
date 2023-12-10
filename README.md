@@ -46,6 +46,6 @@ To work with tuples you need some helpers:
 \def\add#1#2{\chr@tempcount=#1\relax\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
 ```
 
-See the [`example.tex`](example.tex) for a full example.
+See the [`example.tex`](example.tex) for a full example or the [`playground.tex`](playground.tex) for more.
 
-Besides, integer arithmetic is limited by TeX and `compose` is limited to once-per-program (I was too lazy to implement proper nesting).
+Please note, that integer arithmetic is limited by TeX and `compose` is limited to once-per-program (I was too lazy to implement proper nesting).
