@@ -31,13 +31,14 @@ Additionally, there are helper functions like
 * `\true` and `\false` for constant true and false guards or heads
 * `\log{text...}` to output information during the execution. You have to call `\enablelog` so that logging works.
 * `\body{constraints,...}` and `\ebody{constraints,...}` (expands with `\edef`) can be used in the `body` argument of `\Rule` (and `\rule`) to add new constraints more easily (to the main list `chr@constraints`). They are best used at the tail of the body.
-* `\LimitCycles{number}` can be used to halt the execution after a maximum of `number` cycles (e.g., if your Rules have no guaranteed fixpoint).
+* `\LimitCycles{number}` can be used to halt the execution after a maximum of `number` cycles (e.g. if your Rules have no guaranteed fixpoint).
 * `\makelist{list-name}{elements,...}` to construct lists (using them as `\name{index}` to access elements, setter and modifications functions are currently not exposed and live under the `\chr@...` namespace), see the [`list.tex`](https://github.com/EagleoutIce/TeXCHR/blob/main/list.tex).
 * `\listequal{list-name1}{list-name2}` to compare lists element-wise, expands to `\iftrue`/`\iffalse` respectively
 * `\permute{list-name}{length}` which creates all permutations of the given length from the list (using a modified version of [heap's algorithm](https://en.wikipedia.org/wiki/Heap%27s_algorithm)) - currently it does not do fingerprinting (to avoid a problem with otherwise equal constraints) and therefore can produce the same combinations multiple times if `|list-name| < length`. For each combination, this expands the `\chr@@output` macro, which has access to the `list-name` with the current permutation and a shortened `\chr@list@coll` list-presentation (which can be used to copy the list with `\makelist{list-name}{\chr@list@coll}`.
-* Corresponding to `\Rule`, `\Compose`, and `\Run`, ther are lowercase variants `\rule`, `\compose`, and `\run` which take the names of lists (created with `\makelist` instead of the lists directly.
+* `\makeatletter` and `\makeatother` help you to access all internal macros (which use the `\chr@` namespace).
+* Corresponding to `\Rule`, `\Compose`, and `\Run`, there are lowercase variants `\rule`, `\compose`, and `\run` which take the names of lists (created with `\makelist` instead of the lists directly.
 
-### Fibonacci example
+### Fibonacci Example
 
 You want fibonacci? You can have fibonacci!
 
