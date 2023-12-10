@@ -25,8 +25,8 @@ You want fibonacci? You can have fibonacci!
    \Compose{
       \Rule{main}%
       {} % empty kept head
-      {{\chr@true}} % removed head
-      {\chr@true}
+      {{\true}} % removed head
+      {\true}
       {% poor man's tuple
          \tuple{\c{0}}%
          \add{\fst}{\snd}%

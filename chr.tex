@@ -1,3 +1,4 @@
+\def\makeatletter{\catcode`\@=11\relax}\makeatletter
 \input core.tex        % global registers and setup
 \input log.tex         % yes, i have to debug!
 \input for.tex         % tex-for loops for sane people
@@ -11,3 +12,5 @@
 \input program.tex     % tooling to define a program!
 
 \chr@log{Welcome to TeXCHR \chr@version!}
+
+\def\makeatother{\catcode`\@=12\relax}\makeatother
