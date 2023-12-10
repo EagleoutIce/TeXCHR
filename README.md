@@ -1,5 +1,8 @@
 # TeXCHR
 
+![plain TeX](https://img.shields.io/badge/made_with-plain_TeX-purple) [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa] [![latest tag](https://badgen.net/github/tag/EagleoutIce/TeXCHR?label=latest&color=blue)](https://github.com/EagleoutIce/TeXCHR/releases/latest)
+
+
 Welcome to TeXCHR (spoken as "tech-cher")! To run the example you just need plain, good-old TeX. Run:
 
 ```shell
@@ -74,3 +77,6 @@ See the [`example.tex`](example.tex) for a full example or the [`playground.tex`
 Please note, that integer arithmetic is limited by TeX.
 
 [^1]: For the time being, `compose` is limited to once-per-program (I was too lazy to implement proper nesting).
+
+[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/
+[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
