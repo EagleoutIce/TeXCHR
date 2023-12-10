@@ -22,7 +22,6 @@
    \let\Run=\chr@run@inline
    \let\LimitCycles=\chr@limitcycles
    \let\enablelog=\chr@enable@log
-   \let\defsolvers=\chr@program@solvers
    \chr@list{chr@constraints}{}%
    % list of rules for the current program
    \chr@list{chr@rules}{}%
@@ -37,10 +36,5 @@
 % program-scoped setter and getter
 \def\chr@program@set#1{\expandafter\def\csname chr@\chr@current @#1\endcsname}
 \def\chr@program@get#1{\csname chr@\chr@current @#1\endcsname}
-
-\def\chr@program@solvers#1{%
-   \chr@list{\chr@current @solvers}{#1}%
-   \def\solvers{\csname\chr@current @solvers\endcsname}%
-}
 
 \let\chr\chr@program
