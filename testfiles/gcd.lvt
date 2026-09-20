@@ -1,0 +1,20 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% gcd(12,18,9), the euclidean algorithm as it appears in the FreeCHR papers
+\chr{gcd}{%
+   \LimitCycles{60}
+   \Compose{
+      \Rule{zero}{}{{\ifnum\c<1}}{\true}{}
+      \Rule{subtract}{{\ifnum\c>0}}{{\ifnum\c>0}}%
+        {\leq{\c{0}}{\c{1}}}%
+        {\sub{\c{0}}{\c{1}}\ebody{\res}}
+   }
+   \Run{12,18,9}
+}
+\SHOWSTORE
+
+\END

@@ -1,52 +1,54 @@
+% the matched values are ordered kept head first, removed head second, guard and
+% body see them in that order, the removed ones are dropped from the store and
+% whatever the body produces goes in front of the rest (`b(*matching) + constraints1`)
 % #1: kept_head
 % #2: removed_head
 % #3: guard
 % #4: body
 % #5: name (afterthought)
-% returns a solver (stored in \chr@toreturn)
 \def\chr@rule#1#2#3#4#5{%
    % takes the name of the constraint list to work on
    % add it to the list of rules
    \chr@list@append{chr@rules}{%
       \chr@verbose{Running rule '#5' -------------------------------------------------------}%
-      % first, let's match
-      \chr@list@concat{chr@all}{#2}{#1}% we want r + k, why? this way i can just remove the first 'r' elements, instead of having to keep the first k
+      % first, let's match, the head is kept ++ removed (`match(k+r, cs)`)
+      \chr@list@concat{chr@all}{#1}{#2}%
       \chr@match{chr@all}{\chr@input@constraints}%
       % iterate and check if the guards like them.
-      % we pass in the list getter to the guard as \cs, so it can use \cs1, \cs2, ...
+      % we pass in the list getter to the guard as \c, so it can use \c{0}, \c{1}, ...
       \let\chr@constraints@to@fire=\chr@empty
       % todo: just iter directly?
       \chr@list{chr@guard@tries}{\chr@match@result}%
       \chr@list@iter\chr@try:=chr@guard@tries\do{%
-         \expandafter\chr@list\expandafter{\expandafter c\expandafter s\expandafter}\expandafter{\chr@try}%
+         \expandafter\chr@list\expandafter{\expandafter c\expandafter}\expandafter{\chr@try}%
+         \let\cs=\c
          \chr@exec@guard{#3}%
              {\global\let\chr@constraints@to@fire=\chr@try\relax \chr@break}%
              {}% just continue in the other case
       }%
       \ifx\chr@constraints@to@fire\chr@empty
          \chr@verbose{No guard matched.}%
-         \def\chr@toreturn{}%
       \else % here, we have a matched head and guard, and we can actually apply the rule!
-         % we have the length of the kept head in #1, now we shorten the list to only contain it!
          \chr@log{Firing rule '#5' with constraints: \chr@constraints@to@fire}%
          % we copy this way, ugly? yes. nice? i dunno
          \chr@list{chr@list@tmp}{\chr@constraints@to@fire}%
-         % we remove the first length elements
-         \chr@list@to@string\chr@constraints@remains{chr@list@tmp}{\csname#2length\endcsname}%
+         % the last |removed| entries go, the first |kept| ones stay (matching[len(k):])
+         \chr@list@to@string@range\chr@constraints@remains{chr@list@tmp}%
+            {\csname#1length\endcsname}{\csname chr@list@tmplength\endcsname}%
          \chr@list{chr@c@rem}{\chr@constraints@remains}% these are those to remove
          \def\chr@constraints@name{chr@constraints}%
-         % the body should return a new list named... result! which we now simply concat, it can still access c for a new list
+         % the body should return a new list named... result! it can still access \c
          \let\c=\chr@list@tmp
+         \let\cs=\c
          \chr@list{chr@result}{}%
          #4
          \chr@list@iter\chr@elem:=chr@c@rem\do{%
-            \expandafter\chr@list@remove\expandafter{\expandafter\chr@constraints@name\expandafter}\expandafter{\chr@elem}% these are those to keep
+            \expandafter\chr@list@remove\expandafter{\expandafter\chr@constraints@name\expandafter}\expandafter{\chr@elem}%
          }%
-         % body output:
+         % body output, it goes in front of what is left
          \chr@list@log{chr@result}%
-         \chr@list@iter\chr@elem:=chr@result\do{%
-            \expandafter\chr@list@append\expandafter{\expandafter\chr@constraints@name\expandafter}\expandafter{\chr@elem}%
-         }%
+         \chr@list@concat{chr@store@next}{chr@result}{\chr@constraints@name}%
+         \chr@list@concat{\chr@constraints@name}{chr@store@next}{@empty@list}%
          \chr@list@log{chr@constraints}%
       \fi
    }

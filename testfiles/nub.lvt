@@ -1,0 +1,15 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% removes duplicates, the kept head survives and the removed one goes
+\chr{nub}{%
+   \LimitCycles{60}
+   \Compose{\Rule{nub}{{\true}}{{\true}}{\ifnum\c{0}=\c{1}}{}}
+   \Run{1,2,2,3,3,3}
+}
+\SHOWSTORE
+
+\END

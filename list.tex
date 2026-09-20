@@ -1,32 +1,90 @@
+% elements and length are global, the store has to survive the groups \chr@run works in
 % #1 name (allows quicker access), #2 comma-separated elements
 % note: your name (#1) must be a valid command sequence to work!
 \def\chr@list#1#2{%
+   \expandafter\ifx\csname#1length\endcsname\relax
+      \def\chr@list@oldlength{0}%
+   \else
+      \edef\chr@list@oldlength{\csname#1length\endcsname}%
+   \fi
    \chr@tempcount=\z@\relax
    \def\chr@listcheck{#2}%
    \ifx\chr@listcheck\chr@empty\else
       \chr@for\chr@elem:={#2}\do{%
             % you gotta love tex :3 we have to expand \chr@elem once to persist the content
-            \expandafter\expandafter\expandafter\def
+            \expandafter\expandafter\expandafter\gdef
                \expandafter\csname\expandafter#1@\expandafter\the\expandafter\chr@tempcount
                \expandafter\endcsname\expandafter{\chr@elem}%
             \chr@step\chr@tempcount
       }%
    \fi
+   % drop what is left over from a longer version of this list
+   \ifnum\chr@tempcount<\chr@list@oldlength\relax
+      \begingroup % \loop is not nestable, the \let is global anyway
+         \chr@tempcountb=\chr@tempcount
+         \loop
+            \global\expandafter\let\csname#1@\the\chr@tempcountb\endcsname=\chr@undefined
+            \chr@step\chr@tempcountb
+            \ifnum\chr@tempcountb<\chr@list@oldlength
+         \repeat
+      \endgroup
+   \fi
    \expandafter\def\csname#1\endcsname##1{\csname#1@##1\endcsname}%
-   \expandafter\edef\csname#1length\endcsname{\the\chr@tempcount}%
+   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcount}%
    \chr@verbose{Created list '#1' (\the\chr@tempcount).}%
 }
 \chr@list{@empty@list}{}
 
-% FIXME: we should just use the current listname but is it worth the register and scoping?
-\def\chr@break{\chr@tempcountc=100000}
+% this has to be re-entrant (a rule body iterates while we iterate over the rules),
+% and plain TeX's \loop is not: the inner one overwrites \body and kills the outer.
+% so: tail recursion over per-depth macros, no shared register either.
+\newcount\chr@iter@depth \chr@iter@depth=\z@
+
+% similar to \chr@for but does the expansion for the list under the hood :3
+\long\def\chr@list@iter#1:=#2\do#3{%
+   \chr@step\chr@iter@depth
+   \expandafter\edef\csname chr@iter@len@\the\chr@iter@depth\endcsname
+      {\csname#2length\endcsname}%
+   \expandafter\def\csname chr@iter@idx@\the\chr@iter@depth\endcsname{0}%
+   \chr@list@iterate{#1}{#2}{#3}%
+   \advance\chr@iter@depth by\m@ne
+}
+\long\def\chr@list@iterate#1#2#3{%
+   \ifnum\csname chr@iter@idx@\the\chr@iter@depth\endcsname
+       <\csname chr@iter@len@\the\chr@iter@depth\endcsname\relax
+      \expandafter\chr@list@iterate@step
+   \else
+      \expandafter\chr@list@iterate@stop
+   \fi
+   {#1}{#2}{#3}%
+}
+\long\def\chr@list@iterate@stop#1#2#3{}
+\long\def\chr@list@iterate@step#1#2#3{%
+   \expandafter\let\expandafter#1\expandafter=%
+      \csname#2@\csname chr@iter@idx@\the\chr@iter@depth\endcsname\endcsname
+   #3%
+   % the body restored \chr@iter@depth, so our own counter is where we left it
+   \edef\chr@iter@cur{\csname chr@iter@idx@\the\chr@iter@depth\endcsname}%
+   \chr@incr\chr@iter@cur
+   \expandafter\edef\csname chr@iter@idx@\the\chr@iter@depth\endcsname{\chr@iter@cur}%
+   \chr@list@iterate{#1}{#2}{#3}%
+}
+
+% leave the innermost \chr@list@iter once the current body is done
+\def\chr@break{%
+   \ifnum\chr@iter@depth>\z@\relax
+      \expandafter\edef\csname chr@iter@idx@\the\chr@iter@depth\endcsname
+         {\csname chr@iter@len@\the\chr@iter@depth\endcsname}%
+   \fi
+}
 
 % #1 name, #2 and #3 are the indices
 \def\chr@list@swap#1#2#3{%
    % the worse, the cake is a lie shuffle!
    \chr@list@let\chr@swp@temp=#1[#2]%
-   \expandafter\chr@list@let\csname #1@#2\endcsname=#1[#3]%
-   \expandafter\let\csname #1@#3\endcsname=\chr@swp@temp
+   \chr@list@let\chr@swp@tempb=#1[#3]%
+   \expandafter\global\expandafter\let\csname #1@#2\endcsname=\chr@swp@tempb
+   \expandafter\global\expandafter\let\csname #1@#3\endcsname=\chr@swp@temp
 }
 
 \def\chr@list@print#1{%
@@ -44,53 +102,46 @@
 \endgroup}
 
 % collects the first #3 elements of the list with name #2 in #1
-\def\chr@list@to@string#1#2#3{\begingroup
+\def\chr@list@to@string#1#2#3{\chr@list@to@string@range#1{#2}{0}{#3}}
+
+% collects the elements [#3,#4) of the list with name #2 in #1
+\def\chr@list@to@string@range#1#2#3#4{\begingroup
    \global\let#1=\chr@empty
-   \chr@tempcount=\z@
-   \ifnum\csname#2length\endcsname=\z@\relax \else
-   \ifnum#3>\z@\relax
-      \chr@list@iter\chr@elem:=#2\do{%
-         \ifnum\chr@tempcount=\z@\relax
-            \expandafter\chr@gapp\expandafter#1\expandafter{\chr@elem}%
+   \chr@tempcount=#3\relax
+   \chr@tempcountb=#4\relax
+   \ifnum\chr@tempcountb>\csname#2length\endcsname\relax
+      \chr@tempcountb=\csname#2length\endcsname\relax
+   \fi
+   \chr@tempif@true
+   \ifnum\chr@tempcount<\chr@tempcountb\relax\else\chr@tempif@false\fi
+   \ifchr@tempif@
+      \def\chr@ts@first{1}%
+      \loop
+         \chr@list@let\chr@ts@elem=#2[\the\chr@tempcount]%
+         \ifx\chr@ts@first\chr@empty
+            \expandafter\chr@gapp\expandafter#1\expandafter{\expandafter,\chr@ts@elem}%
          \else
-            \expandafter\chr@gapp\expandafter#1\expandafter{\expandafter,\chr@elem}%
+            \expandafter\chr@gapp\expandafter#1\expandafter{\chr@ts@elem}%
+            \let\chr@ts@first=\chr@empty
          \fi
          \chr@step\chr@tempcount
-         \ifnum\the\chr@tempcount<#3\else
-            \chr@break
-         \fi
-      }%
-   \fi\fi
-   % \chr@verbose{List #2 to string: '#1' (#3)}%
-\endgroup}
-
-% similar to \chr@for but does the expansion for the list under the hood :3
-\def\chr@list@iter#1:=#2\do#3{%
-   \chr@tempcountc=\z@
-   \edef\chr@length{\csname#2length\endcsname}%
-   \ifnum\chr@length>0\relax
-   \loop
-      \expandafter\let\expandafter#1\expandafter=\csname#2@\the\chr@tempcountc\endcsname
-      #3%
-      \chr@step\chr@tempcountc
-      % automatic break insertion
-      \ifnum\chr@tempcountc<\chr@length
-   \repeat
+         \ifnum\chr@tempcount<\chr@tempcountb
+      \repeat
    \fi
-}
+\endgroup}
 
 % get the #3th element of list #2 and store it into #1
 \def\chr@list@let#1=#2[#3]{%
    \expandafter\let\expandafter#1\expandafter=\csname#2@#3\endcsname
 }
 \def\chr@list@set#1[#2]=#3;{%
-   \expandafter\def\csname#1@#2\endcsname{#3}%
+   \expandafter\gdef\csname#1@#2\endcsname{#3}%
 }
 \def\chr@list@eset#1[#2]=#3;{%
-   \expandafter\edef\csname#1@#2\endcsname{#3}%
+   \expandafter\xdef\csname#1@#2\endcsname{#3}%
 }
 \def\chr@list@eget#1=#2[#3]{%
-   \expandafter\edef\expandafter#1\expandafter{\expandafter\expandafter\expandafter\chr@strip@meaning\expandafter\meaning\csname#2@\the\chr@tempcount\endcsname}
+   \expandafter\edef\expandafter#1\expandafter{\expandafter\expandafter\expandafter\chr@strip@meaning\expandafter\meaning\csname#2@#3\endcsname}%
 }
 
 % TODO: optimize?
@@ -113,18 +164,22 @@
 % remove the first occurence of #2 in list with name #1
 \def\chr@list@remove#1#2{%
    \chr@verbose{Remove first occurrence of #2 in list #1.}%
-   \chr@list@log{#1}%
    \def\chr@scndelem{#2}%
    \chr@list{#1@tmp}{}%
    \def\chr@tmplistname{#1@tmp}%
+   \let\chr@rm@done=\chr@empty
    \chr@list@iter\chr@elem:=#1\do{%
       \ifx\chr@elem\chr@scndelem
+         \ifx\chr@rm@done\chr@empty
+            \let\chr@rm@done=\chr@ns
+         \else
+            \expandafter\chr@list@append\expandafter{\expandafter\chr@tmplistname\expandafter}\expandafter{\chr@elem}%
+         \fi
       \else
          \expandafter\chr@list@append\expandafter{\expandafter\chr@tmplistname\expandafter}\expandafter{\chr@elem}%
       \fi
    }%
    \chr@list@concat{#1}{\chr@tmplistname}{@empty@list}% poor mans overwrite, code getting really horrible here... could use some thought
-   \chr@list@log{#1}%
 }
 
 % names of both lists, expands to \chr@true if equal, \chr@false otherwise
@@ -138,6 +193,8 @@
       \chr@tempcount=\z@
       % allow loop
       \chr@tempif@true
+      \ifnum\csname#1length\endcsname=\z@\relax \chr@tempif@false \fi
+      \ifchr@tempif@
       \loop
          \chr@list@eget\@chr@left=#1[\the\chr@tempcount]%
          \chr@list@eget\@chr@right=#2[\the\chr@tempcount]%
@@ -154,6 +211,7 @@
          \ifnum\chr@tempcount<\csname#1length\endcsname \else \chr@tempif@false \fi
          \ifchr@tempif@
       \repeat
+      \fi
       \chr@verbose{Lists are \ifchr@result@\else not\space\fi equal.}%
    \else
       \chr@verbose{Different lengths (\the\chr@tempcount\space vs. \the\chr@tempcountb).}%
@@ -164,20 +222,15 @@
 
 % #1 name of list, #2 element to append
 \def\chr@list@append#1#2{\begingroup
-   \chr@tempcountc=\csname#1length\endcsname\relax
-   \expandafter\gdef\csname#1@\the\chr@tempcountc\endcsname{#2}%
-   \chr@step\chr@tempcountc
-   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcountc}%
+   \chr@tempcount=\csname#1length\endcsname\relax
+   \expandafter\gdef\csname#1@\the\chr@tempcount\endcsname{#2}%
+   \chr@step\chr@tempcount
+   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcount}%
 \endgroup}
 % too much copy pasta
 \def\chr@list@eappend#1#2{\begingroup
-   \chr@tempcountc=\csname#1length\endcsname\relax
-   \expandafter\xdef\csname#1@\the\chr@tempcountc\endcsname{#2}%
-   \chr@step\chr@tempcountc
-   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcountc}%
+   \chr@tempcount=\csname#1length\endcsname\relax
+   \expandafter\xdef\csname#1@\the\chr@tempcount\endcsname{#2}%
+   \chr@step\chr@tempcount
+   \expandafter\xdef\csname#1length\endcsname{\the\chr@tempcount}%
 \endgroup}
-% #1 name of list, #2 index to delete
-\def\chr@list@delete#1#2{%
-   % TODO: check for if last element => pop
-   % otherwise replace with \main{next-idx}
-}

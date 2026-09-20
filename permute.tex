@@ -1,90 +1,99 @@
-% we use heap's algorithm to generate all permutations of a list - i love that algorithm honestly
-% to avoid deep expansions for larger lists, i use the non-recursive variant
+% every ordered selection of #2 pairwise distinct entries, in the order of
+% python's itertools.permutations - so no entry twice, no selection twice, and
+% nothing at all if #2 is longer than the list.
+% (heap's algorithm plus truncation, which i had here before, gives none of that)
 %
-% well, i noticed too late that we only need permutations of size n and honestly it is getting later and
-% later.... i tried fingerprinting but it does not work if a constraint appears multiple times...
-%
-% #1 the name of the list, please define '\chr@@output' to run on the list after each permutation
-% this macro receives no arguments, but can read the same list you gave to permute!
-% besides, it can use '\chr@list@coll' to get the collected list elements if necessary!
-% #2 is the length of the permutations desired
-\def\chr@permute#1#2{\begingroup% i fumbled here (historical reasons :D)
+% #1 the name of the list, please define '\chr@@output' to run on the list after
+% each selection. this macro receives no arguments, but can read the same list
+% you gave to permute (its first #2 entries hold the current selection).
+% besides, it can use '\chr@list@coll' to get the collected list elements!
+% #2 is the length of the selections desired
+\def\chr@permute#1#2{\begingroup
    \ifx\chr@@output\chr@undefined
       \chr@error{You have to define \string\chr@@output\space to run on the list after each permutation!}%
    \fi
-   \let\chr@list@coll=\@empty
-   \def\chr@permute@length{\csname #1length\endcsname}%
-   \edef\chr@permute@output@length{#2}%
-   \expandafter\chr@permute@generate\expandafter{\chr@permute@length}{#1}%
+   \def\chr@permute@listname{#1}%
+   \edef\chr@permute@output@length{\number#2}%
+   \edef\chr@permute@input@length{\number\csname#1length\endcsname}%
+   \let\chr@list@coll=\chr@empty
+   \chr@verbose{Enumerate all \chr@permute@output@length-selections of list #1
+      (length: \chr@permute@input@length).}%
+   \ifnum\chr@permute@output@length>\chr@permute@input@length\relax
+      \chr@verbose{    None, the head is longer than the store.}%
+   \else
+      \chr@permute@mksucc
+      \chr@permute@snapshot{#1}%
+      \chr@permute@select{0}%
+   \fi
 \endgroup}
 
-% fingerprint the current state of the list with name in #1
-% #2 is only executed if the fingerprint does not already exist
-\def\chr@permute@fingerprint#1#2{%
-   % TODO: make even single values unique! or just change the
-   \chr@list@to@string\chr@list@coll{#1}{\chr@permute@output@length}%
-   % \expandafter\let\expandafter\chr@permute@fingerprint@cmd\expandafter=\csname chr@permute@\chr@list@coll\endcsname
-   %\ifx\chr@permute@fingerprint@cmd\relax
-   %   \expandafter\let\csname chr@permute@\chr@list@coll\endcsname=\chr@ns\relax
-      #2%
-   %\else % we already have this fingerprint
-   %   \chr@verbose{    Skip for fingerprint is present.}%
-   %\fi
+% without numexpr this is like... really painful, so: a successor table
+\def\chr@permute@mksucc{%
+   \chr@arith=\z@
+   \loop
+      \chr@tempcountb=\chr@arith \chr@step\chr@tempcountb
+      \expandafter\edef\csname chr@succ@\the\chr@arith\endcsname{\the\chr@tempcountb}%
+      \chr@step\chr@arith
+      \ifnum\chr@arith<\chr@permute@output@length
+   \repeat
 }
 
-\def\chr@permute@init#1{%
-   \chr@verbose{Initialize array C.}%
-   \def\chr@tmp{0}
-   \ifnum#1>1\relax
-      \chr@tempcount=\z@
-      \chr@step\chr@tempcount % we step early to skip the 0 :3
+% the list is rewritten in place, so keep the original order around
+\def\chr@permute@snapshot#1{%
+   \ifnum\chr@permute@input@length>\z@\relax
+      \chr@arith=\z@
       \loop
-         \chr@app\chr@tmp{,0}%
-         \chr@step\chr@tempcount
-         \ifnum\the\chr@tempcount<#1\relax
+         \chr@list@let\chr@perm@tmp=#1[\the\chr@arith]%
+         \expandafter\let\csname chr@perm@src@\the\chr@arith\endcsname=\chr@perm@tmp
+         \chr@step\chr@arith
+         \ifnum\chr@arith<\chr@permute@input@length
       \repeat
    \fi
-   % c allows us to use expandafter more easily and is consistent with the pseudo-code
-   \expandafter\chr@list\expandafter{\expandafter C\expandafter}\expandafter{\chr@tmp}
 }
-% #1: n of iterations, #2: list name
-% as a slight modification we call \chr@@output for 'output'
-\def\chr@permute@generate#1#2{\begingroup
-   \chr@verbose{Generate all permutations of list #2 (length: #1).}%
-   \ifnum#1=\z@
-      \gdef\chr@return{}%
+
+% #1 = current depth, pick the element for position #1
+\def\chr@permute@select#1{%
+   \ifnum#1<\chr@permute@output@length\relax
+      \expandafter\def\csname chr@perm@j@#1\endcsname{0}%
+      \chr@permute@loop{#1}%
    \else
-      % initialize new array - also known as the ""list""
-      \chr@permute@init{#1}%
-      \chr@permute@fingerprint{#2}{\chr@@output}%
-      % tempcount will be our i
-      \chr@tempcount=1\relax
-      \let\chr@permute@done\chr@empty
-      \loop
-         \ifnum\the\chr@tempcount<#1\relax % essentially the head/while condition
-            \edef\chr@c@i{\C{\the\chr@tempcount}} % number, we now we can edef C[i]
-            \ifnum\chr@c@i<\the\chr@tempcount\relax
-               \ifodd\the\chr@tempcount\relax% careful, we have to swap here, as tex presents \ifodd, but the default implementation uses "\ifeven"
-                  \chr@list@swap{#2}{\chr@c@i}{\the\chr@tempcount}% swap(A[C[i]], A[i])
-               \else
-                  \chr@list@swap{#2}{0}{\the\chr@tempcount}% swap(A[0], A[i])
-               \fi
-               \chr@permute@fingerprint{#2}{\chr@@output}
-               % without numexpr this is like... really painful
-               \chr@tempcountb=\chr@c@i\relax
-               \chr@step\chr@tempcountb
-               \chr@list@eset C[\the\chr@tempcount]=\the\chr@tempcountb;% C[i] := C[i] + 1
-               \chr@tempcount=1\relax % i := 1
-            \else
-               \chr@list@set C[\the\chr@tempcount]=0;% C[i] := 0
-               \chr@step\chr@tempcount % i++
-            \fi
-         \else
-            % while loop is done!
-            \let\chr@permute@done=\chr@ns\relax
-         \fi
-         \ifx\chr@permute@done\chr@empty
-      \repeat
+      \chr@permute@emit
    \fi
-   \endgroup
+}
+
+% walk the candidate source indices for depth #1
+\def\chr@permute@loop#1{%
+   \edef\chr@perm@jcur{\csname chr@perm@j@#1\endcsname}%
+   \ifnum\chr@perm@jcur<\chr@permute@input@length\relax
+      \expandafter\chr@permute@loop@body
+   \else
+      \expandafter\chr@gobble
+   \fi
+   {#1}%
+}
+\def\chr@permute@loop@body#1{%
+   \expandafter\ifx\csname chr@perm@used@\chr@perm@jcur\endcsname\relax
+      \chr@permute@descend{#1}%
+   \fi
+   % the recursion clobbered \chr@perm@jcur
+   \edef\chr@perm@jcur{\csname chr@perm@j@#1\endcsname}%
+   \chr@incr\chr@perm@jcur
+   \expandafter\edef\csname chr@perm@j@#1\endcsname{\chr@perm@jcur}%
+   \chr@permute@loop{#1}%
+}
+\def\chr@permute@descend#1{%
+   \expandafter\let\csname chr@perm@used@\chr@perm@jcur\endcsname=\chr@ns
+   \expandafter\let\expandafter\chr@perm@tmp\expandafter
+      =\csname chr@perm@src@\chr@perm@jcur\endcsname
+   \expandafter\let\csname\chr@permute@listname @#1\endcsname=\chr@perm@tmp
+   \edef\chr@perm@nd{\csname chr@succ@#1\endcsname}%
+   \expandafter\chr@permute@select\expandafter{\chr@perm@nd}%
+   \edef\chr@perm@jcur{\csname chr@perm@j@#1\endcsname}%
+   \expandafter\let\csname chr@perm@used@\chr@perm@jcur\endcsname=\relax
+}
+
+\def\chr@permute@emit{%
+   \expandafter\chr@list@to@string\expandafter\chr@list@coll
+      \expandafter{\chr@permute@listname}{\chr@permute@output@length}%
+   \chr@@output
 }

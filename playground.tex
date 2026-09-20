@@ -40,18 +40,17 @@
 }
 
 \chr{Rule Test}{%
-   \makelist{constraints}{1,2,3,4}%
-   \Rule{base-case}{}{{\ifnum\c1>0}}{\true}{}%
-   \chr@program@get{chr@toreturn}{constraints}
-   \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\true}{3}%
-   \chr@program@get{chr@toreturn}{constraints}
+   \makelist{chr@constraints}{1,2,3,4}%
+   % a single rule is a solver too, we just have to compose it with nothing else
+   \Compose{\Rule{base-case}{}{{\ifnum\c>0}}{\true}{}}%
+   \chr@program@get{composite_solver}{chr@constraints}
    \chr@list@log{chr@constraints}%
 }
 \chr{Compose Test}{%
    \makelist{chr@constraints}{1,2,3,4}%
    \Compose{%
-      \Rule{base-case}{}{{\ifnum\c1>0}}{\true}{2}%
-      \Rule{fun}{{\ifnum\c1>2}}{{\ifnum\c1>0}}{\true}{3}%
+      \Rule{base-case}{}{{\ifnum\c>4}}{\true}{}%
+      \Rule{fun}{{\ifnum\c>2}}{{\ifnum\c>0}}{\true}{\ebody{9}}%
    }%
    \chr@program@get{composite_solver}{chr@constraints}
    \chr@list@log{chr@constraints}%

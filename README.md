@@ -25,8 +25,11 @@ Allows to use FreeCHR in plain TeX. Every program must be wrapped in `\chr{name}
 Basic `\Rule{name}{kept-heads,...}{removed-heads,...}{guard}{body}`, `\Compose{rules,...}`, and `\Run{constraints,...}` with FreeCHR semantics.[^1]
 
 Within the heads, you can use `\c` to access the current constraint! For example, if your constraints are just numbers,  you can use `{\ifnum\c>2}` to only allow numbers that are greater than `2` (in general, your heads have to each expand to or behave equivalently to either `\iftrue` or `\iffalse`).
-Within the guard you can access all matched constraints using `\c` as a list (i.e., access them with `\c{0}`, `\c{1}`, ...) based on the order of your heads (additionally, you can name them using `\def\n{\c0}`, ...).
+Within the guard you can access all matched constraints using `\c` as a list (i.e., access them with `\c{0}`, `\c{1}`, ...) based on the order of your heads (additionally, you can name them using `\def\n{\c{0}}`, ...). The guard has to expand to a conditional too.
 Similarly, in your body, you can access all matched constraints as `\c{i}` with i being their 0-based index.
+
+That order is the FreeCHR one: kept heads first, removed heads after. So with `\Rule{r}{{k1},{k2}}{{r1}}{guard}{body}` the guard and the body see `\c{0}` for `k1`, `\c{1}` for `k2` and `\c{2}` for `r1`. The values matched by the removed heads leave the store, and what the body produces is put in front of the rest (`b(*matching) + constraints1` in the Python version).
+
 All heads, the guard, and the body can have side effects, given that they still expand to a conditional/update the constraint list `chr@constraint`  in the case of the `body` (for this, you can use `\body` and `\ebody`, see below).
 
 Additionally, there are helper functions like
@@ -34,10 +37,10 @@ Additionally, there are helper functions like
 * `\true` and `\false` for constant true and false guards or heads
 * `\log{text...}` to output information during the execution. You have to call `\enablelog` so that logging works.
 * `\body{constraints,...}` and `\ebody{constraints,...}` (expands with `\edef`) can be used in the `body` argument of `\Rule` (and `\rule`) to add new constraints more easily (to the main list `chr@constraints`). They are best used at the tail of the body.
-* `\LimitCycles{number}` can be used to halt the execution after a maximum of `number` cycles (e.g. if your Rules have no guaranteed fixpoint).
+* `\LimitCycles{number}` can be used to halt the execution after a maximum of `number` cycles (e.g. if your Rules have no guaranteed fixpoint). If you hit the limit, you get a warning in the log.
 * `\makelist{list-name}{elements,...}` to construct lists (using them as `\name{index}` to access elements, setter and modifications functions are currently not exposed and live under the `\chr@...` namespace), see the [`list.tex`](https://github.com/EagleoutIce/TeXCHR/blob/main/list.tex).
 * `\listequal{list-name1}{list-name2}` to compare lists element-wise, expands to `\iftrue`/`\iffalse` respectively
-* `\permute{list-name}{length}` which creates all permutations of the given length from the list (using a modified version of [heap's algorithm](https://en.wikipedia.org/wiki/Heap%27s_algorithm)) - currently it does not do fingerprinting (to avoid a problem with otherwise equal constraints) and therefore can produce the same combinations multiple times if `|list-name| < length`. For each combination, this expands the `\chr@@output` macro, which has access to the `list-name` with the current permutation and a shortened `\chr@list@coll` list-presentation (which can be used to copy the list with `\makelist{list-name}{\chr@list@coll}`.
+* `\permute{list-name}{length}` gives you every ordered selection of `length` pairwise distinct entries of the list, in the order of Python's `itertools.permutations(list, length)` - no entry twice, no selection twice, and nothing at all if `length` is bigger than the list. For each selection, this expands the `\chr@@output` macro, which has access to the `list-name` (its first `length` entries hold the current selection) and a shortened `\chr@list@coll` list-presentation (which can be used to copy the list with `\makelist{list-name}{\chr@list@coll}`).
 * `\makeatletter` and `\makeatother` help you to access all internal macros (which use the `\chr@` namespace).
 * Corresponding to `\Rule`, `\Compose`, and `\Run`, there are lowercase variants `\rule`, `\compose`, and `\run` which take the names of lists (created with `\makelist` instead of the lists directly.
 
@@ -72,9 +75,21 @@ To work with tuples you need some helpers:
 \def\add#1#2{\chr@tempcount=#1\relax\advance\chr@tempcount by #2\relax\edef\res{\the\chr@tempcount}}
 ```
 
-See the [`example.tex`](example.tex) for a full example or the [`playground.tex`](playground.tex) for more.
+See the [`example.tex`](example.tex) for a full example or the [`playground.tex`](playground.tex) for more. [`testfiles/`](testfiles) has a few small programs whose results are checked against the Python version, run them with `l3build check` (plain TeX, both `tex` and `pdftex`).
 
 Please note, that integer arithmetic is limited by TeX.
+
+### Which Semantics?
+
+This follows the very abstract operational semantics of FreeCHR, which is what the Python version implements too:
+
+* a rule fires if the store holds a distinct value for every head pattern and the guard likes them together,
+* `\Compose` tries its rules in order and stops at the first one that changes the store,
+* `\Run` applies the composed solver until the store stops changing.
+
+There is no propagation history. The very abstract semantics has none (you only get one in the *refined* semantics), so a propagation rule with a non-empty body will never reach a fixpoint here, same as in the Python version. That is what `\LimitCycles` is for.
+
+The store is a sequence and not a multiset, and the fixpoint check compares it element-wise (the Python version compares lists, so same thing). Removing a matched value removes its first occurrence.
 
 [^1]: For the time being, `compose` is limited to once-per-program (I was too lazy to implement proper nesting).
 

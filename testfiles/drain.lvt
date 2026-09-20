@@ -1,0 +1,15 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% the store runs empty, the fixpoint still has to be found
+\chr{drain}{%
+   \LimitCycles{60}
+   \Compose{\Rule{drop}{}{{\true}}{\true}{}}
+   \Run{1,2,3}
+}
+\SHOWSTORE
+
+\END

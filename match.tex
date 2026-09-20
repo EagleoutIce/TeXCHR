@@ -15,42 +15,43 @@
 
 \def\chr@match@output@processor{\begingroup
    % for list name '#2', try each pattern in list '#1' respectively and return true if all do, return false otherwise
-   \chr@tempcountc=\z@\relax
+   \def\chr@match@i{0}%
    \let\chr@match@stop=\chr@ns
-   \gdef\chr@match@output{}%
-   \loop
-      \ifnum\the\chr@tempcountc<\chr@patterns@length\relax
-         % DO THE WORK
-         % now check, if the predicate matches, first we store the current constraint in \c
-         \chr@list@let\c=\chr@match@constraintnames[\the\chr@tempcountc]%
-         % TODO: only works, if constraint can be printed!
-         \chr@verbose{Checking pattern \the\chr@tempcountc\space for constraint value: '\c'.}%
-         \let\chr@pattern@result=\chr@empty
-         %
-         % now we can check the predicate
-         \chr@exec@pattern
-         \chr@step\chr@tempcountc
-      \else
-         \let\chr@match@stop=\chr@empty
-      \fi
-      %
-      \ifx\chr@match@stop\chr@ns
-   \repeat
+   \let\chr@pattern@result=\chr@ns
+   \chr@match@try
    % if it is successful, store it!
    \ifx\chr@pattern@result\chr@ns
-      \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter{\chr@list@coll},}%
+      \ifx\chr@match@result\chr@empty
+         \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter{\chr@list@coll}}%
+      \else
+         \expandafter\chr@gapp\expandafter\chr@match@result\expandafter{\expandafter,\expandafter{\chr@list@coll}}%
+      \fi
    \fi
-\endgroup
+\endgroup}
+
+\def\chr@match@try{%
+   \ifnum\chr@match@i<\chr@patterns@length\relax
+      % now check, if the predicate matches, first we store the current constraint in \c
+      \chr@list@let\c=\chr@match@constraintnames[\chr@match@i]%
+      % TODO: only works, if constraint can be printed!
+      \chr@verbose{Checking pattern \chr@match@i\space for constraint value: '\c'.}%
+      \let\chr@pattern@result=\chr@empty
+      % now we can check the predicate
+      \chr@exec@pattern
+      \chr@incr\chr@match@i
+      \ifx\chr@match@stop\chr@ns
+         \chr@match@try
+      \fi
+   \fi
 }
 
-
 \def\chr@exec@pattern{% we have to hide the \else from early execute
-   \csname\chr@match@patternnames @\the\chr@tempcountc\endcsname
+   \csname\chr@match@patternnames @\chr@match@i\endcsname
       \let\chr@pattern@result=\chr@ns
-      \chr@verbose{Pattern \the\chr@tempcountc\space matches.}%
+      \chr@verbose{Pattern \chr@match@i\space matches.}%
       \relax % relax, we are good!
    \else
-      \chr@verbose{Pattern \the\chr@tempcountc\space does not match.}%
+      \chr@verbose{Pattern \chr@match@i\space does not match.}%
       \let\chr@match@stop=\chr@empty
    \fi
 }

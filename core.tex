@@ -3,7 +3,7 @@
 % must never be empty!
 \edef\chr@ns{chr@}
 
-\def\chr@version{0.0.1}
+\def\chr@version{0.0.2}
 
 % must be an undefined mapping!
 \def\chr@nnil{\chr@nil}
@@ -16,10 +16,12 @@
 \def\chr@firstoftwo#1#2{#1}
 \def\chr@secondoftwo#1#2{#2}
 \def\chr@empty{}
+\long\def\chr@gobble#1{}
 
 \def\chr@step#1{\advance#1 by\@ne}
 
 \def\chr@error#1{\errmessage{Error: #1}}
+\def\chr@warning#1{\immediate\write\chr@unused{Warning: #1}}
 
 \let\chr@true=\iftrue
 \let\chr@false=\iffalse
@@ -31,10 +33,13 @@
 \newcount\chr@tempcountb
 \newcount\chr@tempcountc
 \newcount\chr@runcyclecount
+\newcount\chr@arith
 \newif\ifchr@tempif@
 \newif\ifchr@result@
 % maximum numbers of runs
 \def\chr@maxruncycles{30}
+
+\def\chr@incr#1{\chr@arith=#1\relax\advance\chr@arith by\@ne\edef#1{\the\chr@arith}}
 
 \def\chr@app#1#2{%
    \begingroup\toks@\expandafter{#1#2}\xdef\@tmp{\the\toks@}\endgroup

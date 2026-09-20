@@ -1,0 +1,16 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% fibonacci, with a constraint the head cannot match
+\chr{fib}{%
+   \LimitCycles{45}
+   \Compose{\Rule{main}{}{{\tuple{\c}\ifnum\fst>-1}}{\true}%
+      {\tuple{\c{0}}\add{\fst}{\snd}\ebody{\snd:\res}}}
+   \Run{{0:1},{-1:1}}
+}
+\SHOWSTORE
+
+\END

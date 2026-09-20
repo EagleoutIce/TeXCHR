@@ -1,0 +1,16 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% a head longer than the store never matches, just like permutations(cs, r)
+% with r > |cs| is empty
+\chr{toolong}{%
+   \LimitCycles{10}
+   \Compose{\Rule{pair}{}{{\true},{\true}}{\true}{\ebody{9}}}
+   \Run{1}
+}
+\SHOWSTORE
+
+\END

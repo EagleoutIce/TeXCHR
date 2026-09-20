@@ -1,0 +1,15 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% a propagation rule has no fixpoint, \LimitCycles has to stop it and say so
+\chr{nofix}{%
+   \LimitCycles{4}
+   \Compose{\Rule{grow}{{\true}}{}{\true}{\ebody{7}}}
+   \Run{1}
+}
+\SHOWSTORE
+
+\END

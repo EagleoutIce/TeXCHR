@@ -1,8 +1,11 @@
-% only gets the name for one solver, for us this must always be the return of compose: `composite_solver`
+% apply the solver until it stops changing the store. there is no propagation
+% history (freechr has none either), so a propagation rule with a non-empty body
+% never gets there - that is what \LimitCycles is for.
+% only gets the name for one solver, for us this must always be the return of
+% compose: `composite_solver`
 % #1 is the list of constraints to run for (currently needs the name)
 \def\chr@run#1{%
    \def\chr@run@solvername{composite_solver}%
-   \chr@list{chr@constraints}{}%
    \chr@list@concat{chr@constraints}{#1}{@empty@list}%
    % we just directly apply to the constraint in #1
    \chr@list@concat{chr@list@return@solve}{#1}{@empty@list}%
@@ -23,8 +26,13 @@
       \fi
       % update
       \chr@list@concat{chr@list@return@solve}{chr@constraints}{@empty@list}%
-      \ifnum\chr@runcyclecount<\chr@maxruncycles\relax \else
-         \global\let\chr@run@fixpoint=\chr@ns\relax
+      \ifx\chr@run@fixpoint\chr@empty
+         \ifnum\chr@runcyclecount<\chr@maxruncycles\relax \else
+            \chr@warning{Stopped after \the\chr@runcyclecount\space cycles
+               without reaching a fixpoint (see \string\LimitCycles).}%
+            \chr@log{Cycle limit of \chr@maxruncycles\space reached, giving up.}%
+            \global\let\chr@run@fixpoint=\chr@ns\relax
+         \fi
       \fi
       \chr@log{::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::}%
       \egroup

@@ -1,0 +1,18 @@
+\input regression-test.tex
+\input chr.tex
+\input chr-test.tex
+
+\START
+
+% \Compose stops at the first rule that changes the store
+\chr{composetest}{%
+   \LimitCycles{1}
+   \Compose{%
+      \Rule{base}{}{{\ifnum\c>4}}{\true}{}%
+      \Rule{fun}{{\ifnum\c>2}}{{\ifnum\c>0}}{\true}{\ebody{9}}%
+   }%
+   \Run{1,2,3,4}
+}
+\SHOWSTORE
+
+\END
