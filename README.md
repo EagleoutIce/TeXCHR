@@ -1,6 +1,6 @@
 # TeXCHR
 
-![plain TeX](https://img.shields.io/badge/made_with-plain_TeX-purple) [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa] [![latest tag](https://badgen.net/github/tag/EagleoutIce/TeXCHR?label=latest&color=blue)](https://github.com/EagleoutIce/TeXCHR/releases/latest)
+[![CI](https://github.com/EagleoutIce/TeXCHR/actions/workflows/ci.yml/badge.svg)](https://github.com/EagleoutIce/TeXCHR/actions/workflows/ci.yml) ![plain TeX](https://img.shields.io/badge/made_with-plain_TeX-purple) [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa] [![latest tag](https://badgen.net/github/tag/EagleoutIce/TeXCHR?label=latest&color=blue)](https://github.com/EagleoutIce/TeXCHR/releases/latest)
 
 
 Welcome to TeXCHR (spoken as "tech-cher")! To run the example you just need plain, good-old TeX. Run:
