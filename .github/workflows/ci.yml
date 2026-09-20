@@ -17,4 +17,12 @@ jobs:
         uses: xu-cheng/texlive-action@v3
         with:
           scheme: full
-          run: l3build check -q -H
+          # The TeX Live image is Alpine based, so `diff` is BusyBox's, which
+          # rejects the `-c --strip-trailing-cr` flags l3build passes by
+          # default. Prefer GNU diffutils, fall back to a BusyBox-compatible
+          # invocation via the `diffexe` variable.
+          run: |
+            if ! diff -c --strip-trailing-cr /dev/null /dev/null >/dev/null 2>&1; then
+              apk add --no-cache diffutils || export diffexe="diff -u"
+            fi
+            l3build check -q -H
